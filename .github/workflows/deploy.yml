@@ -23,6 +23,9 @@ jobs:
       - name: hexo
         run: npx hexo generate
 
+      - name: disable jekyll
+        run: touch public/.nojekyll
+
       - name: gh pages
         uses: peaceiris/actions-gh-pages@v3
         with:
