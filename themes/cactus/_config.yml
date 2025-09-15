@@ -96,8 +96,8 @@ error_404:
 #   - grayout: whether to enable a hover effect on the logo
 logo:
   enabled: true
-  width: 50
-  height: 50
+  width: 100
+  height: 100
   url: /images/logo.png
   gravatar: false
   grayout: true
