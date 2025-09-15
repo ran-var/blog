@@ -1,0 +1,56 @@
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    
+    <%- open_graph({
+        image: thumbnail(page),
+        fb_app_id: theme.open_graph ? theme.open_graph.fb_app_id : '',
+        fb_admins: theme.open_graph ? theme.open_graph.fb_admins : '',
+        twitter_id: theme.open_graph ? theme.open_graph.twitter_id : '',
+        google_plus: theme.open_graph ? theme.open_graph.google_plus : '',
+    }) %>
+    
+    <%- meta(page) %>
+    
+    <% if (theme.favicon) { %>
+      <% if (theme.favicon.desktop) { %>
+        <link rel="shortcut icon" href="<%= theme.favicon.desktop.url || '' %>">
+      <% } %>
+      <% if (theme.favicon.android) { %>
+        <link rel="icon" type="image/png" href="<%= theme.favicon.android.url || '' %>" sizes="192x192">
+      <% } %>
+      <% if (theme.favicon.apple) { %>
+        <link rel="apple-touch-icon" sizes="180x180" href="<%= theme.favicon.apple.url || '' %>">
+      <% } %>
+    <% } %>
+
+    <title><%= page_title() %></title>
+
+    <!-- async scripts -->
+    <% if (theme.google_analytics && theme.google_analytics.enabled && theme.google_analytics.id) { %>
+        <%- partial('./google_analytics.ejs') %>
+    <% } %>
+    <% if (theme.utterances && theme.utterances.enabled) { %>
+        <%- partial('./umami_analytics.ejs') %>
+    <% } %>
+
+    <%- css('css/style') %>
+
+    <% if (theme.direction && theme.direction === 'rtl') { %>
+        <%- css('css/rtl') %>
+    <% } %>
+
+    <% if (theme.mathjax && theme.mathjax.enabled) { %>
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+            tex2jax: {
+              skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+              inlineMath: [['$','$']]
+            }
+          });
+        </script>
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+    <% } %>
+</head>
