@@ -633,20 +633,27 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 #header a {
+  display: flex;
+  align-items: center;
   background: none;
   color: inherit;
   text-decoration: none;
 }
 #header #logo {
-  display: inline-block;
-  float: left;
+  display: block;
   margin-right: 20px;
   width: 100px;
   height: 100px;
   background-size: 100px 100px;
   background-repeat: no-repeat;
+  float: none;
   filter: grayscale(100%);
   -webkit-filter: grayscale(100%);
+}
+#header #title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 #header #nav {
   color: #2bbc8a;
