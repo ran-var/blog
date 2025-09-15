@@ -1,0 +1,30 @@
+name: Hexo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: dependencies
+        run: npm ci
+
+      - name: hexo
+        run: npx hexo generate
+
+      - name: gh pages
+        uses: peaceiris/actions-gh-pages@v6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
