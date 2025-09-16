@@ -99,13 +99,13 @@ if $logo-grayout
 @media screen and (max-width: 480px)
   #header
     flex-direction: column
-    align-items: center
-    text-align: center
+    align-items: left
+    text-align: left
 
   #header #title
     display: flex
     flex-direction: column
-    align-items: center
+    align-items: left
     margin: 0
     min-height: auto
 
@@ -118,34 +118,3 @@ if $logo-grayout
       margin: 0
       font-size: 1rem
       white-space: nowrap
-
-  #header #nav
-    ul
-      a:hover
-        background: none
-
-      li
-        display: none
-        border-right: 0
-
-      li.icon
-        position: absolute
-        top: 77px
-        right: 1rem
-        display: inline-block
-        text-align: center
-
-    ul.responsive
-      li
-        display: block
-
-    ul 
-      a[aria-label="Menu"]
-        display: inline-block
-        min-width: 48px
-        min-height: 48px
-
-    li:not(:first-child)
-      padding-top: 1rem
-      padding-left: $logo-width + 20px
-      font-size: 1rem
