@@ -506,13 +506,13 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 .content p {
-  hyphens: auto;
-  -moz-hyphens: auto;
-  -ms-hyphens: auto;
-  -webkit-hyphens: auto;
+  hyphens: manual;
+  -moz-hyphens: manual;
+  -ms-hyphens: manual;
+  -webkit-hyphens: manual;
 }
 .content code {
   hyphens: manual;
@@ -1232,6 +1232,16 @@ article .content .caption {
   color: #908d8d;
   text-align: center;
   font-size: 0.9em;
+}
+.back-link {
+  display: inline-block;
+  width: auto;
+  max-width: fit-content;
+  margin-bottom: 1rem;
+  text-decoration: none;
+  color: #2bbc8a;
+  font-weight: 400;
+  font-size: 1rem;
 }
 .posttitle {
   text-transform: none;
