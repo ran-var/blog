@@ -31,16 +31,16 @@ However, XML's verbose nature and complex parsing requirements create more oppor
 
 Two critical XML parsing vulnerabilities demonstrate just how dangerous these flaws can be in production systems.
 
-**CVE-2016-1834** affected `libxml2 <2.9.4`, a widely used XML parsing library. The vulnerability is a heap based buffer overflow in the `xmlStrncat` function which allowed attackers to execute remote code or cause a memory corruption based denial of service attack. The vulnerability was especially significant on Apple platforms, though unpatched Linux systems using libxml2 were also at risk.
+[**CVE-2016-1834**](https://nvd.nist.gov/vuln/detail/cve-2016-1834) affected `libxml2 <2.9.4`, a widely used XML parsing library. The vulnerability is a heap based buffer overflow in the `xmlStrncat` function which allowed attackers to execute remote code or cause a memory corruption based denial of service attack. The vulnerability was especially significant on Apple platforms, though unpatched Linux systems using libxml2 were also at risk.
 
-**CVE-2019-5063** affected `OpenCV 4.1.0`. It also involves a heap based buffer overflow in the XML parser, triggered when processing very long or unrecognized character entities in XML files and copying it into a fixed size buffer without proper bounds checking:
+[**CVE-2019-5063**](https://nvd.nist.gov/vuln/detail/CVE-2019-5063) affected `OpenCV 4.1.0`. It also involves a heap based buffer overflow in the XML parser, triggered when processing very long or unrecognized character entities in XML files and copying it into a fixed size buffer without proper bounds checking:
 ```c
 #define CV_FS_MAX_LEN 4096
 char strbuf[CV_FS_MAX_LEN + 16];
 ```
 
 ## Config Parsing in IoT Devices
-To see how XML buffer overflows can happen in IoT devices, let's look at a simple configuration parser for device credentials. This example reflects the same type of flaws found in `CVE-2016-1834` and `CVE-2019-5063`, but in the context of parsing default admin credentials from an XML file.
+To see how XML buffer overflows can happen in IoT devices, let's look at a simple configuration parser for device credentials. This example reflects the same type of flaws found in **CVE-2016-1834** and **CVE-2019-5063**, but in the context of parsing default admin credentials from an XML file.
 
 Many IoT devices keep default credentials and network settings in *(ideally)* encrypted XML files that are loaded during startup. A typical parser might look like this:
 
