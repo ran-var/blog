@@ -2,6 +2,9 @@
 title: "Stack Smashing Through XML: Using IoT Configs As Attack Vectors"
 date: 2025-09-16
 ---
+## Poking at Chinese Firmware
+I recently spent some time reversing a pre-historic smart device as a research exercise. While poking at the firmware binaries I stumbled on a bug inside how the device parses the config XML file.
+The vendor hasn't issued a statement yet(shocker) so I will try to the best of my ability to recreate a similar vulnerable function without *accidentally disclosing* any real detail that can be used to identify the device.
 
 ## Understanding XML: Structure Without Safety
 
