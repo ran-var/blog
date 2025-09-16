@@ -707,13 +707,13 @@ body {
 @media screen and (max-width: 480px) {
   #header {
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+    align-items: left;
+    text-align: left;
   }
   #header #title {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: left;
     margin: 0;
     min-height: auto;
   }
@@ -726,33 +726,6 @@ body {
     margin: 0;
     font-size: 1rem;
     white-space: nowrap;
-  }
-  #header #nav ul a:hover {
-    background: none;
-  }
-  #header #nav ul li {
-    display: none;
-    border-right: 0;
-  }
-  #header #nav ul li.icon {
-    position: absolute;
-    top: 77px;
-    right: 1rem;
-    display: inline-block;
-    text-align: center;
-  }
-  #header #nav ul.responsive li {
-    display: block;
-  }
-  #header #nav ul a[aria-label="Menu"] {
-    display: inline-block;
-    min-width: 48px;
-    min-height: 48px;
-  }
-  #header #nav li:not(:first-child) {
-    padding-top: 1rem;
-    padding-left: 145px;
-    font-size: 1rem;
   }
 }
 #header-post {
