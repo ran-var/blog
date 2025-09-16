@@ -6,15 +6,15 @@
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
     
-    <meta name="description" content="Understanding XML: Structure Without SafetyXML (eXtensible Markup Language) is a markup language that uses a hierarchical structure of elements enclosed in angle brackets.Think of XML as a structuring">
+    <meta name="description" content="Poking at Chinese FirmwareI recently spent some time reversing a pre-historic smart device as a research exercise. While poking at the firmware binaries I stumbled on a bug inside how the device parse">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Stack Smashing Through XML: Using IoT Configs As Attack Vectors">
 <meta property="og:url" content="https://ran-var.github.io/blog/2025/09/16/xml-overflow/">
 <meta property="og:site_name" content="Ran Varshaver">
-<meta property="og:description" content="Understanding XML: Structure Without SafetyXML (eXtensible Markup Language) is a markup language that uses a hierarchical structure of elements enclosed in angle brackets.Think of XML as a structuring">
+<meta property="og:description" content="Poking at Chinese FirmwareI recently spent some time reversing a pre-historic smart device as a research exercise. While poking at the firmware binaries I stumbled on a bug inside how the device parse">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-09-16T00:00:00.000Z">
-<meta property="article:modified_time" content="2025-09-16T12:57:44.746Z">
+<meta property="article:modified_time" content="2025-09-16T18:12:25.496Z">
 <meta property="article:author" content="Ran Varshaver">
 <meta name="twitter:card" content="summary">
     
@@ -45,28 +45,14 @@
     
 
     
-<meta name="generator" content="Hexo 8.0.0"></head>
+<meta name="generator" content="Hexo 7.3.0"></head>
 
 <body class="max-width mx-auto px3 ltr">
     
       <div id="header-post">
-  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
   <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
   <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
   <span id="menu">
-    <span id="nav">
-      <ul>
-        <!--
-       --><li><a href="/blog/%5Bobject%20Object%5D">0</a></li><!--
-     --><!--
-       --><li><a href="/blog/%5Bobject%20Object%5D">1</a></li><!--
-     --><!--
-       --><li><a href="/blog/%5Bobject%20Object%5D">2</a></li><!--
-     --><!--
-       --><li><a href="/blog/%5Bobject%20Object%5D">3</a></li><!--
-     -->
-      </ul>
-    </span>
     <br/>
     <span id="actions">
       <ul>
@@ -100,7 +86,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Understanding-XML-Structure-Without-Safety"><span class="toc-number">1.</span> <span class="toc-text">Understanding XML: Structure Without Safety</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Learning-from-Critical-Vulnerabilities"><span class="toc-number">2.</span> <span class="toc-text">Learning from Critical Vulnerabilities</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Config-Parsing-in-IoT-Devices"><span class="toc-number">3.</span> <span class="toc-text">Config Parsing in IoT Devices</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Poking-at-Chinese-Firmware"><span class="toc-number">1.</span> <span class="toc-text">Poking at Chinese Firmware</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Understanding-XML-Structure-Without-Safety"><span class="toc-number">2.</span> <span class="toc-text">Understanding XML: Structure Without Safety</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Learning-from-Critical-Vulnerabilities"><span class="toc-number">3.</span> <span class="toc-text">Learning from Critical Vulnerabilities</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Config-Parsing-in-IoT-Devices"><span class="toc-number">4.</span> <span class="toc-text">Config Parsing in IoT Devices</span></a></li></ol>
       </div>
     
   </span>
@@ -141,7 +127,8 @@
   
 
   <div class="content e-content" itemprop="articleBody">
-    <h2 id="Understanding-XML-Structure-Without-Safety"><a href="#Understanding-XML-Structure-Without-Safety" class="headerlink" title="Understanding XML: Structure Without Safety"></a>Understanding XML: Structure Without Safety</h2><p>XML (eXtensible Markup Language) is a markup language that uses a hierarchical structure of elements enclosed in angle brackets.<br>Think of XML as a structuring system where information gets organized into labeled elements that can hold both data and other elements.</p>
+    <h2 id="Poking-at-Chinese-Firmware"><a href="#Poking-at-Chinese-Firmware" class="headerlink" title="Poking at Chinese Firmware"></a>Poking at Chinese Firmware</h2><p>I recently spent some time reversing a pre-historic smart device as a research exercise. While poking at the firmware binaries I stumbled on a bug inside how the device parses the config XML file.<br>The vendor hasn’t issued a statement yet(shocker) so I will try to the best of my ability to recreate a similar vulnerable function without <em>accidentally disclosing</em> any real detail that can be used to identify the device.</p>
+<h2 id="Understanding-XML-Structure-Without-Safety"><a href="#Understanding-XML-Structure-Without-Safety" class="headerlink" title="Understanding XML: Structure Without Safety"></a>Understanding XML: Structure Without Safety</h2><p>XML (eXtensible Markup Language) is a markup language that uses a hierarchical structure of elements enclosed in angle brackets.<br>Think of XML as a structuring system where information gets organized into labeled elements that can hold both data and other elements.</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">device</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>Generic Router<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">firmware_version</span>&gt;</span>2.1<span class="tag">&lt;/<span class="name">firmware_version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">device</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>XML elements can also contain attributes which provide additional metadata about the element, an attribute appears inside the opening tag and consists of a name-value pair:</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">device</span> <span class="attr">type</span>=<span class="string">&quot;thermostat&quot;</span> <span class="attr">model</span>=<span class="string">&quot;v2.1&quot;</span>&gt;</span>Smart Home Device<span class="tag">&lt;/<span class="name">device</span>&gt;</span></span><br></pre></td></tr></table></figure>
@@ -179,23 +166,12 @@
   <div id="footer-post">
 
     <div id="nav-footer" style="display: none">
-      <ul>
-        
-          <li><a href="/blog/%5Bobject%20Object%5D">0</a></li>
-        
-          <li><a href="/blog/%5Bobject%20Object%5D">1</a></li>
-        
-          <li><a href="/blog/%5Bobject%20Object%5D">2</a></li>
-        
-          <li><a href="/blog/%5Bobject%20Object%5D">3</a></li>
-        
-      </ul>
     </div>
 
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Understanding-XML-Structure-Without-Safety"><span class="toc-number">1.</span> <span class="toc-text">Understanding XML: Structure Without Safety</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Learning-from-Critical-Vulnerabilities"><span class="toc-number">2.</span> <span class="toc-text">Learning from Critical Vulnerabilities</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Config-Parsing-in-IoT-Devices"><span class="toc-number">3.</span> <span class="toc-text">Config Parsing in IoT Devices</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Poking-at-Chinese-Firmware"><span class="toc-number">1.</span> <span class="toc-text">Poking at Chinese Firmware</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Understanding-XML-Structure-Without-Safety"><span class="toc-number">2.</span> <span class="toc-text">Understanding XML: Structure Without Safety</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Learning-from-Critical-Vulnerabilities"><span class="toc-number">3.</span> <span class="toc-text">Learning from Critical Vulnerabilities</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Config-Parsing-in-IoT-Devices"><span class="toc-number">4.</span> <span class="toc-text">Config Parsing in IoT Devices</span></a></li></ol>
       </div>
     
 
@@ -215,16 +191,6 @@
 </ul>
 
     </div>
-
-    <div id="actions-footer">
-        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
-        
-          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
-        
-        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
-        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
-    </div>
-
   </div>
 </div>
 

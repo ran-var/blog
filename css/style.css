@@ -585,7 +585,7 @@ body {
   }
 }
 .max-width {
-  max-width: 48rem;
+  max-width: 50rem;
 }
 @media (max-width: 480px) {
   .px3 {
@@ -605,6 +605,10 @@ body {
 #header {
   margin: 0 auto 2rem;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 #header h1,
 #header .h1 {
@@ -701,14 +705,27 @@ body {
   -webkit-filter: none;
 }
 @media screen and (max-width: 480px) {
+  #header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
   #header #title {
-    display: table;
-    margin-right: 5rem;
-    min-height: 125px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    min-height: auto;
   }
   #header #title h1 {
-    display: table-cell;
-    vertical-align: middle;
+    margin: 0;
+    font-size: 1.4rem;
+    white-space: nowrap;
+  }
+  #header #title h2 {
+    margin: 0;
+    font-size: 1rem;
+    white-space: nowrap;
   }
   #header #nav ul a:hover {
     background: none;
@@ -741,9 +758,9 @@ body {
 #header-post {
   position: fixed;
   top: 2rem;
-  right: 0;
+  left: 0;
   display: inline-block;
-  float: right;
+  float: left;
   z-index: 100;
 }
 #header-post a {
@@ -775,7 +792,7 @@ body {
   margin-right: 0;
 }
 #header-post #menu-icon {
-  float: right;
+  float: left;
   margin-right: 2rem;
   margin-left: 15px;
 }
@@ -783,7 +800,7 @@ body {
   color: #2bbc8a;
 }
 #header-post #menu-icon-tablet {
-  float: right;
+  float: left;
   margin-right: 2rem;
   margin-left: 15px;
 }
@@ -838,11 +855,11 @@ body {
   margin-right: 0;
 }
 #header-post #actions {
-  float: right;
+  float: left;
   margin-top: 2rem;
-  margin-right: 2rem;
+  margin-left: 2rem;
   width: 100%;
-  text-align: right;
+  text-align: left;
 }
 #header-post #actions ul {
   display: block;
@@ -854,22 +871,22 @@ body {
 #header-post #share {
   clear: both;
   padding-top: 1rem;
-  padding-right: 2rem;
-  text-align: right;
+  padding-left: 2rem;
+  text-align: left;
 }
 #header-post #share li {
   display: block;
   margin: 0;
 }
 #header-post #toc {
-  float: right;
+  float: left;
   clear: both;
   overflow: auto;
   margin-top: 1rem;
-  padding-right: 2rem;
+  padding-left: 2rem;
   max-width: 20em;
   max-height: calc(95vh - 7rem);
-  text-align: right;
+  text-align: left;
 }
 #header-post #toc a:hover {
   color: #d480aa;
@@ -934,7 +951,7 @@ body {
   }
   #header-post #actions ul {
     display: inline-block;
-    float: right;
+    float: left;
   }
   #header-post #actions .info {
     display: inline;
@@ -1094,6 +1111,11 @@ body {
   margin-bottom: 1rem;
   margin-left: 0;
   list-style-type: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 1rem;
 }
 .post-list .post-item .meta {
   display: block;
@@ -1101,6 +1123,12 @@ body {
   min-width: 100px;
   color: #908d8d;
   font-size: 14px;
+}
+.post-list .post-item .reading-time {
+  white-space: nowrap;
+  font-style: italic;
+  color: #908d8d;
+  font-size: 0.9rem;
 }
 @media (min-width: 480px) {
   .post-list .post-item {
@@ -1110,16 +1138,6 @@ body {
   .post-list .post-item .meta {
     text-align: left;
   }
-}
-.project-list {
-  padding: 0;
-  list-style: none;
-}
-.project-list .project-item {
-  margin-bottom: 5px;
-}
-.project-list .project-item p {
-  display: inline;
 }
 article header .posttitle {
   margin-top: 0;
