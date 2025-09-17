@@ -102,7 +102,7 @@ pwndbg> b parse_config
 pwndbg> r
 ```
 
-Once inside we can just skip over instructions until we hit the part where our *trustworthy password* is copied into memory.
+Once inside we can just step over instructions until we hit the part where our *trustworthy password* is copied into memory.
 
 ```
 ─────────────────────────────────[ SOURCE (CODE) ]─────────────────────────────────
@@ -158,7 +158,7 @@ pwndbg> x/128bx &cfg->password
 0x7fffffffda68:	0x20	0x20	0x20	0x20	0x20	0x20	0x20	0x20
 ```
 
-Setting this memory view side by side with `config.xml` we are able to directly see the ASCII representation of the characters we've overflown the memory with:
+Setting this memory view side by side with `config.xml` we are able to directly see the hex representation of the ASCII characters we've overflown the memory with:
 `A=0x41*32, B=0x42*36, C=0x43*32, D=0x44*4 `
 
 This example was a significant oversimplification of how IoT/smart home devices utilize XML for parsing credentials, but it gets the point across: **blindly trusting XML and dumping it into fixed-size buffers is risky**. 
