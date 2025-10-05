@@ -6,17 +6,19 @@
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
     
-    <meta name="description" content="work in progress 🤫">
+    <meta name="description" content="work in progress 🤫Honestly the only reason I got into this rabbit hole is having an old laptop lying around and wondered how far I can stretch the line without bricking it entirely. In particular to">
 <meta property="og:type" content="article">
 <meta property="og:title" content="$5 UEFI Attack: How Attackers Extract BitLocker Keys Through Hardware">
 <meta property="og:url" content="https://ran-var.github.io/blog/1111/11/11/bitlocker-leak/">
 <meta property="og:site_name" content="Ran Varshaver">
-<meta property="og:description" content="work in progress 🤫">
+<meta property="og:description" content="work in progress 🤫Honestly the only reason I got into this rabbit hole is having an old laptop lying around and wondered how far I can stretch the line without bricking it entirely. In particular to">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ran-var.github.io/blog/images/spichip.jpg">
 <meta property="article:published_time" content="1111-11-11T00:00:00.000Z">
-<meta property="article:modified_time" content="2025-09-17T06:49:57.471Z">
+<meta property="article:modified_time" content="2025-10-05T13:38:42.635Z">
 <meta property="article:author" content="Ran Varshaver">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ran-var.github.io/blog/images/spichip.jpg">
     
     
     
@@ -88,7 +90,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#work-in-progress-%F0%9F%A4%AB"><span class="toc-number">1.</span> <span class="toc-text">work in progress 🤫</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#work-in-progress-%F0%9F%A4%AB"><span class="toc-number">1.</span> <span class="toc-text">work in progress 🤫</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BitLocker-101-Keys-TPMs-and-Cryptography"><span class="toc-number">2.</span> <span class="toc-text">BitLocker 101: Keys, TPMs, and Cryptography</span></a></li></ol>
       </div>
     
   </span>
@@ -129,7 +131,16 @@
   
 
   <div class="content e-content" itemprop="articleBody">
-    <h2 id="work-in-progress-🤫"><a href="#work-in-progress-🤫" class="headerlink" title="work in progress 🤫"></a>work in progress 🤫</h2>
+    <h2 id="work-in-progress-🤫"><a href="#work-in-progress-🤫" class="headerlink" title="work in progress 🤫"></a>work in progress 🤫</h2><p>Honestly the only reason I got into this rabbit hole is having an old laptop lying around and wondered how far I can stretch the line without bricking it entirely. In particular to see how disk encryption actually works under the hood and trying to break it by clipping some cheap hardware hacking tools from AliExpress like a CH341A.</p>
+<p>Special thanks to <a target="_blank" rel="noopener" href="https://x.com/xenokovah">Xeno Kovah</a> and <a target="_blank" rel="noopener" href="https://p.ost2.fyi/">OpenSecurityTraining2</a> for sparking my curiosity and providing some incredible quality material.</p>
+<h2 id="BitLocker-101-Keys-TPMs-and-Cryptography"><a href="#BitLocker-101-Keys-TPMs-and-Cryptography" class="headerlink" title="BitLocker 101: Keys, TPMs, and Cryptography"></a>BitLocker 101: Keys, TPMs, and Cryptography</h2><p>Lets walk through how BitLocker is supposed to work, because the more you understand the elegant design, the more the real world flaws start to make sense.<br>BitLocker represents Microsoft’s attempt to solve a genuinely hard problem: how do you automatically decrypt a hard drive when an authorized user boots their computer, but keep it locked when an unauthorized person tries to access the data?</p>
+<p>The solution relies on a “trusted boot” process. Think of it as a chain of cryptographic measurements that starts with your computer’s firmware and continues through each piece of software that loads during startup. Each component hashes the next, creating a unique fingerprint of your system’s exact boot state.</p>
+<p>It does so by using what’s called a Trusted Platform Module(TPM) chip, which only hands over the keys once the measured state matches the same state as when Bitlocker was first configured on the machine. If anything significant has changed in the boot process the TPM chip will not transfer the keys and may require a Bitlocker recovery process.</p>
+<p>This measurement process creates what’s called a “root of trust” but like any chain, it’s only as strong as its weakest link. The TPM measures each component, but it has to trust that the measurements it receives are valid, and this is where the elegance starts to show cracks.</p>
+<p>When your computer boots, the UEFI&#x2F;BIOS firmware is the first code to run, responsible for measuring itself and the next component in the chain. But here’s the catch: the UEFI firmware lives in SPI flash memory which is a small chip that’s often easily accessible on the motherboard and wasn’t designed with sophisticated tamper protection in mind.</p>
+<p><em>Exercise! Try looking at an old motherboard or any PCB you have lying around and find a small 8-legged chip and do a short google search on the text that’s written on it, most chip vendors provide an open source datasheet</em><br><img src="/blog/images/spichip.jpg" alt="spi flash chip"></p>
+<p>This is where a cheap flash programmer comes into play, it can directly read and write to SPI flash chips containing the sealed BitLocker keys or parameters used to derive them. The irony is that BitLocker’s strength its tight integration with the hardware boot process also creates its most exploitable weakness. Every piece of the trusted boot chain becomes a potential attack surface for someone with physical access.</p>
+
   </div>
 </article>
 
@@ -145,7 +156,7 @@
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#work-in-progress-%F0%9F%A4%AB"><span class="toc-number">1.</span> <span class="toc-text">work in progress 🤫</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#work-in-progress-%F0%9F%A4%AB"><span class="toc-number">1.</span> <span class="toc-text">work in progress 🤫</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BitLocker-101-Keys-TPMs-and-Cryptography"><span class="toc-number">2.</span> <span class="toc-text">BitLocker 101: Keys, TPMs, and Cryptography</span></a></li></ol>
       </div>
     
 
