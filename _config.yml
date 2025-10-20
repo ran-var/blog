@@ -49,7 +49,9 @@ highlight:
   auto_detect: false
   tab_replace: ''
   wrap: true
-  hljs: false
+  hljs: true
+  exclude_languages: []
+  language_attr: true
 prismjs:
   preprocess: true
   line_number: true
