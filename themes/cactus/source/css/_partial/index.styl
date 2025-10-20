@@ -7,22 +7,28 @@
     list-style-type: none
     display: flex
     justify-content: space-between
-    align-items: center
+    align-items: flex-start
     flex-wrap: nowrap
-    gap: 1rem
 
     .meta
       display: block
       margin-right: 16px
-      min-width: 100px
+      width: 100px
+      flex-shrink: 0
       color: $color-meta
       font-size: 14px
+
+    .post-title
+      flex: 1
+      min-width: 0
 
     .reading-time
       white-space: nowrap
       font-style: italic
       color: $color-meta
       font-size: 0.9rem
+      margin-left: 2rem
+      flex-shrink: 0
 
 @media (min-width: 480px)
   .post-list

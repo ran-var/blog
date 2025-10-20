@@ -50,7 +50,7 @@
     <% show_posts.each(function(post, i){ %>
       <li class="post-item" data-content="<%- post.content.replace(/"/g, '&quot;').replace(/<[^>]+>/g,'') %>">
         <%- partial('_partial/post/date', { post: post, class_name: 'meta' }) %>
-        <span><%- partial('_partial/post/title', { post: post, index: true, class_name: '' }) %></span>
+        <span class="post-title"><%- partial('_partial/post/title', { post: post, index: true, class_name: '' }) %></span>
         <span class="reading-time"></span>
       </li>
     <% }); %>
@@ -71,6 +71,77 @@
   </script>
 </section>
 
+<% if (theme.repositories && theme.repositories.length) { %>
+<section id="repositories">
+  <span class="h1"><a href="<%- url_for(theme.projects_url) %>">Repositories</a></span>
+
+  <ul class="post-list">
+    <% theme.repositories.forEach(function(repo){ %>
+      <li class="post-item repo-item">
+        <div class="repo-content">
+          <div>
+            <a href="<%- repo.link %>" target="_blank" rel="noopener"><%= repo.title %></a>
+            <div class="meta"><%= repo.description %></div>
+          </div>
+        </div>
+        <div class="repo-stars" data-repo="<%- repo.link.replace('https://github.com/', '') %>">
+          <i class="fa-regular fa-star"></i> <span class="star-count">-</span>
+        </div>
+      </li>
+    <% }); %>
+  </ul>
+
+  <script>
+    async function fetchStars() {
+      const elements = document.querySelectorAll('.repo-stars');
+      for (const el of elements) {
+        const repo = el.getAttribute('data-repo');
+        if (!repo) continue;
+        try {
+          const response = await fetch(`https://api.github.com/repos/${repo}`);
+          if (!response.ok) throw new Error('API error');
+          const data = await response.json();
+          const count = data.stargazers_count || 0;
+          el.querySelector('.star-count').textContent = count >= 1000
+            ? (count / 1000).toFixed(1) + 'k'
+            : count.toString();
+        } catch (e) {
+          console.error('Error fetching stars for ' + repo + ':', e);
+          el.querySelector('.star-count').textContent = '0';
+        }
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fetchStars);
+    } else {
+      fetchStars();
+    }
+  </script>
+
+  <style>
+    .repo-item {
+      align-items: flex-start !important;
+    }
+    .repo-content {
+      flex: 1;
+    }
+    .repo-content .meta {
+      margin-top: 0.25rem;
+      font-size: 0.9em;
+      width: auto !important;
+      min-width: auto !important;
+      margin-right: 0 !important;
+      flex-shrink: 1;
+    }
+    .repo-stars {
+      margin-left: 1rem;
+      white-space: nowrap;
+      color: var(--accent);
+    }
+  </style>
+</section>
+<% } %>
 
 <% if (site.data.projects) { %>
 <section id="projects">
