@@ -34,6 +34,7 @@ For the sake of demonstartion the binary had PIE disabled so addresses would rem
 checksec --file=horcruxes
 RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH	Symbols		FORTIFY	Fortified	Fortifiable	FILE
 Full RELRO      No canary found   NX enabled    No PIE          No RPATH   No RUNPATH   76 Symbols	  No	0		3		horcruxes
+
 ```
 The binary initializes seven functions A-G with each of them storing a random value, and we need them sum of all these integers to receive the flag. However we cannot see those integers during regular execution since they are generated at runtime so we'll need to jump to each of the seven functions one after the other to print them out *(see where we're going?)*.
 Another interesting point to clear up: *why couldn't we just use the first gadget to jump to where the flag is printed?*
