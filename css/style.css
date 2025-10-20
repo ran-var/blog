@@ -460,26 +460,25 @@ body td {
 /* Scroll bar */
 /* For Firefox */
 * {
-  scrollbar-color: #2bbc8a transparent;
-  scrollbar-width: thin;
+  scrollbar-color: #999 transparent;
 }
 /* For Chrome, Edge, and Safari */
 *::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 6px;
 }
 *::-webkit-scrollbar-track {
   background: transparent;
 }
 *::-webkit-scrollbar-thumb {
-  background-color: #2bbc8a;
-  border-radius: 10px;
+  background-color: #999;
+  border-radius: 6px;
 }
 *::-webkit-scrollbar-thumb:hover {
-  background-color: #2bbc8a;
+  background-color: #7a7a7a;
 }
 *::-webkit-scrollbar-thumb:active {
-  background-color: #2bbc8a;
+  background-color: #6b6b6b;
 }
 html {
   margin: 0;
@@ -1704,55 +1703,6 @@ code {
 }
 .highlight .line {
   height: 22px;
-}
-.highlight.asm .code .keyword,
-.highlight.x86asm .code .keyword,
-.highlight.nasm .code .keyword {
-  color: #569cd6;
-  font-weight: bold;
-}
-.highlight.asm .code .built_in,
-.highlight.x86asm .code .built_in,
-.highlight.nasm .code .built_in,
-.highlight.asm .code .register,
-.highlight.x86asm .code .register,
-.highlight.nasm .code .register {
-  color: #4ec9b0;
-}
-.highlight.asm .code .number,
-.highlight.x86asm .code .number,
-.highlight.nasm .code .number,
-.highlight.asm .code .literal,
-.highlight.x86asm .code .literal,
-.highlight.nasm .code .literal {
-  color: #b5cea8;
-}
-.highlight.asm .code .comment,
-.highlight.x86asm .code .comment,
-.highlight.nasm .code .comment {
-  color: #6a9955;
-  font-style: italic;
-}
-.highlight.asm .code .string,
-.highlight.x86asm .code .string,
-.highlight.nasm .code .string {
-  color: #ce9178;
-}
-.highlight.asm .code .symbol,
-.highlight.x86asm .code .symbol,
-.highlight.nasm .code .symbol,
-.highlight.asm .code .title,
-.highlight.x86asm .code .title,
-.highlight.nasm .code .title,
-.highlight.asm .code .section,
-.highlight.x86asm .code .section,
-.highlight.nasm .code .section {
-  color: #dcdcaa;
-}
-.highlight.asm .code .meta,
-.highlight.x86asm .code .meta,
-.highlight.nasm .code .meta {
-  color: #c586c0;
 }
 #header-post #actions {
   direction: ltr !important;
