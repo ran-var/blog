@@ -1085,7 +1085,7 @@ body {
   list-style-type: none;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   flex-wrap: nowrap;
 }
 .post-list .post-item .meta {
