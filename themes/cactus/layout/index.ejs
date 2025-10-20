@@ -48,10 +48,16 @@
          : site.posts.sort(field_sort, 'desc').limit(theme.posts_overview.post_count || 5) %>
          
     <% show_posts.each(function(post, i){ %>
-      <li class="post-item" data-content="<%- post.content.replace(/"/g, '&quot;').replace(/<[^>]+>/g,'') %>">
-        <%- partial('_partial/post/date', { post: post, class_name: 'meta' }) %>
-        <span class="post-title"><%- partial('_partial/post/title', { post: post, index: true, class_name: '' }) %></span>
-        <span class="reading-time"></span>
+      <% var wordCount = post.content ? post.content.replace(/<[^>]+>/g,'').trim().split(/\s+/).length : 0 %>
+      <% var readingMinutes = Math.max(1, Math.ceil(wordCount / 200)) %>
+      <li class="post-item">
+        <div class="post-title-wrapper">
+          <%- partial('_partial/post/title', { post: post, index: true, class_name: '' }) %>
+        </div>
+        <div class="post-meta-wrapper">
+          <%- partial('_partial/post/date', { post: post, class_name: 'meta' }) %>
+          <span class="reading-time"><%= readingMinutes %> min read</span>
+        </div>
       </li>
     <% }); %>
   </ul>
@@ -59,16 +65,6 @@
   <% if (theme.posts_overview.show_all_posts) { %>
     <%- partial('_partial/pagination') %>
   <% } %>
-
-  <script>
-    document.querySelectorAll('.post-item').forEach(item => {
-      const text = item.getAttribute('data-content') || '';
-      const words = text.trim().split(/\s+/).length;
-      const minutes = Math.max(1, Math.ceil(words / 200));
-      const span = item.querySelector('.reading-time');
-      if(span) span.textContent = minutes + ' min read';
-    });
-  </script>
 </section>
 
 <% if (theme.repositories && theme.repositories.length) { %>
@@ -120,24 +116,49 @@
   </script>
 
   <style>
+    /* Hide post wrappers that don't apply to repo items */
+    .repo-item .post-title-wrapper,
+    .repo-item .post-meta-wrapper {
+      display: none !important;
+    }
+
+    /* Mobile & Desktop: same layout - title on top (hug), description below, stars vertically centered */
     .repo-item {
+      flex-direction: row !important;
       align-items: center !important;
     }
+
     .repo-content {
       flex: 1;
+      display: inline-block;
     }
+
+    .repo-content > div {
+      display: inline-block;
+    }
+
+    .repo-content > div a {
+      display: inline;
+      vertical-align: baseline;
+    }
+
     .repo-content .meta {
+      display: block;
       margin-top: 0.25rem;
-      font-size: 0.9em;
+      margin-right: 0;
+      margin-left: 0;
+      padding: 0;
       width: auto !important;
       min-width: auto !important;
-      margin-right: 0 !important;
+      font-size: 14px;
       flex-shrink: 1;
     }
+
     .repo-stars {
       margin-left: 1rem;
       white-space: nowrap;
       color: var(--accent);
+      flex-shrink: 0;
     }
   </style>
 </section>

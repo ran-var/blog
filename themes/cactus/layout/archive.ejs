@@ -10,9 +10,16 @@
       <% if (change) { %>
         <li class="post-year"><h2><%= year %></h2></li>
       <% } %>
+      <% var wordCount = post.content ? post.content.replace(/<[^>]+>/g,'').trim().split(/\s+/).length : 0 %>
+      <% var readingMinutes = Math.max(1, Math.ceil(wordCount / 200)) %>
       <li class="post-item">
-        <%- partial('_partial/post/date', { post: post, class_name: 'meta' }) %>
-        <span><%- partial('_partial/post/title', { post: post, index: true, class_name: '' }) %></span>
+        <div class="post-title-wrapper">
+          <%- partial('_partial/post/title', { post: post, index: true, class_name: '' }) %>
+        </div>
+        <div class="post-meta-wrapper">
+          <%- partial('_partial/post/date', { post: post, class_name: 'meta' }) %>
+          <span class="reading-time"><%= readingMinutes %> min read</span>
+        </div>
       </li>
     <% }); %>
   </ul>

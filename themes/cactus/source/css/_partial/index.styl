@@ -2,39 +2,69 @@
   padding: 0
 
   .post-item
-    margin-bottom: 1rem
     margin-left: 0
     list-style-type: none
+
+    // Mobile: vertical layout
     display: flex
-    justify-content: space-between
-    align-items: center
-    flex-wrap: nowrap
+    flex-direction: column
+    gap: 0.5rem
+    margin-bottom: 1.5rem
 
+    .post-title-wrapper
+      width: 100%
+
+    .post-meta-wrapper
+      display: flex
+      justify-content: space-between
+      align-items: center
+      width: 100%
+
+      .meta
+        color: $color-meta
+        font-size: 14px
+        margin: 0
+
+      .reading-time
+        white-space: nowrap
+        font-style: italic
+        color: $color-meta
+        font-size: 0.9rem
+
+  // Repository items styling
+  .repo-item
     .meta
-      display: block
-      margin-right: 16px
-      width: 100px
-      flex-shrink: 0
       color: $color-meta
-      font-size: 14px
 
-    .post-title
-      flex: 1
-      min-width: 0
-
-    .reading-time
-      white-space: nowrap
-      font-style: italic
-      color: $color-meta
-      font-size: 0.9rem
-      margin-left: 2rem
-      flex-shrink: 0
-
-@media (min-width: 480px)
+// Desktop: horizontal layout (original design)
+@media (min-width: 768px)
   .post-list
     .post-item
       display: flex
+      flex-direction: row
+      justify-content: space-between
+      align-items: center
+      flex-wrap: nowrap
+      gap: 0
       margin-bottom: 5px
 
-      .meta
-        text-align: left
+      .post-title-wrapper
+        flex: 1
+        min-width: 0
+        order: 2
+
+      .post-meta-wrapper
+        display: contents
+
+        .meta
+          display: block
+          margin-right: 16px
+          width: 100px
+          flex-shrink: 0
+          order: 1
+          text-align: left
+
+        .reading-time
+          margin-left: 2rem
+          flex-shrink: 0
+          order: 3
