@@ -484,7 +484,6 @@ html {
   margin: 0;
   padding: 0;
   height: 100%;
-  border-top: 2px solid #c9cacc;
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
 }
@@ -1086,22 +1085,28 @@ body {
   list-style-type: none;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: nowrap;
-  gap: 1rem;
 }
 .post-list .post-item .meta {
   display: block;
   margin-right: 16px;
-  min-width: 100px;
+  width: 100px;
+  flex-shrink: 0;
   color: #908d8d;
   font-size: 14px;
+}
+.post-list .post-item .post-title {
+  flex: 1;
+  min-width: 0;
 }
 .post-list .post-item .reading-time {
   white-space: nowrap;
   font-style: italic;
   color: #908d8d;
   font-size: 0.9rem;
+  margin-left: 2rem;
+  flex-shrink: 0;
 }
 @media (min-width: 480px) {
   .post-list .post-item {

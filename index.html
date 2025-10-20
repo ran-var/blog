@@ -64,15 +64,6 @@
       <h2 class="subtitle">Security Researcher</h2>
     </div>
   </a>
-  <div id="nav">
-    <ul>
-      <li class="icon">
-        <a href="#" aria-label="Menu">
-          <i class="fa-solid fa-bars fa-2x"></i>
-        </a>
-      </li>
-    </ul>
-  </div>
 </header>
 
         
@@ -165,7 +156,7 @@ Whether you’re writing code or breaking it understanding how ret works, how th
     </div>
 
 
-        <span>
+        <span class="post-title">
     
         <a class="" href="/blog/2025/10/05/rop/">Return Oriented Programming: Exploitation Without Execution</a>
     
@@ -214,7 +205,7 @@ This example was a significant oversimplification of how IoT&#x2F;smart home dev
     </div>
 
 
-        <span>
+        <span class="post-title">
     
         <a class="" href="/blog/2025/09/16/xml-overflow/">Stack Smashing Through XML: Using IoT Configs As Attack Vectors</a>
     
@@ -244,7 +235,7 @@ This is where a cheap flash programmer comes into play, it can directly read and
     </div>
 
 
-        <span>
+        <span class="post-title">
     
         <a class="" href="/blog/1111/11/11/bitlocker-leak/">$5 UEFI Attack: How Attackers Extract BitLocker Keys Through Hardware</a>
     
@@ -267,6 +258,77 @@ This is where a cheap flash programmer comes into play, it can directly read and
       if(span) span.textContent = minutes + ' min read';
     });
   </script>
+</section>
+
+
+<section id="repositories">
+  <span class="h1"><a target="_blank" rel="noopener" href="https://github.com/ran-var">Repositories</a></span>
+
+  <ul class="post-list">
+    
+      <li class="post-item repo-item">
+        <div class="repo-content">
+          <div>
+            <a href="https://github.com/ran-var/Process-Librarian" target="_blank" rel="noopener">Process Librarian</a>
+            <div class="meta">Windows process analysis tool with built in DLL injector</div>
+          </div>
+        </div>
+        <div class="repo-stars" data-repo="ran-var/Process-Librarian">
+          <i class="fa-regular fa-star"></i> <span class="star-count">-</span>
+        </div>
+      </li>
+    
+  </ul>
+
+  <script>
+    async function fetchStars() {
+      const elements = document.querySelectorAll('.repo-stars');
+      for (const el of elements) {
+        const repo = el.getAttribute('data-repo');
+        if (!repo) continue;
+        try {
+          const response = await fetch(`https://api.github.com/repos/${repo}`);
+          if (!response.ok) throw new Error('API error');
+          const data = await response.json();
+          const count = data.stargazers_count || 0;
+          el.querySelector('.star-count').textContent = count >= 1000
+            ? (count / 1000).toFixed(1) + 'k'
+            : count.toString();
+        } catch (e) {
+          console.error('Error fetching stars for ' + repo + ':', e);
+          el.querySelector('.star-count').textContent = '0';
+        }
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fetchStars);
+    } else {
+      fetchStars();
+    }
+  </script>
+
+  <style>
+    .repo-item {
+      align-items: flex-start !important;
+    }
+    .repo-content {
+      flex: 1;
+    }
+    .repo-content .meta {
+      margin-top: 0.25rem;
+      font-size: 0.9em;
+      width: auto !important;
+      min-width: auto !important;
+      margin-right: 0 !important;
+      flex-shrink: 1;
+    }
+    .repo-stars {
+      margin-left: 1rem;
+      white-space: nowrap;
+      color: var(--accent);
+    }
+  </style>
 </section>
 
 
