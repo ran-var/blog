@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    
+    <meta name="description" content="Poking at Chinese FirmwareI recently spent some time reversing a pre-historic smart device as a research exercise. While poking at the firmware binaries I stumbled on a bug inside how the device parse">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Stack Smashing Through XML: Using IoT Configs As Attack Vectors">
+<meta property="og:url" content="https://ran-var.github.io/blog/xml-overflow/">
+<meta property="og:site_name" content="Ran Varshaver">
+<meta property="og:description" content="Poking at Chinese FirmwareI recently spent some time reversing a pre-historic smart device as a research exercise. While poking at the firmware binaries I stumbled on a bug inside how the device parse">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-09-16T00:00:00.000Z">
+<meta property="article:modified_time" content="2025-10-20T19:21:34.415Z">
+<meta property="article:author" content="Ran Varshaver">
+<meta name="twitter:card" content="summary">
+    
+    
+    
+    
+      
+        <link rel="shortcut icon" href="/images/favicon.ico">
+      
+      
+        <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+      
+      
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+      
+    
+
+    <title>Stack Smashing Through XML: Using IoT Configs As Attack Vectors</title>
+
+    <!-- async scripts -->
+    
+    
+
+    
+<link rel="stylesheet" href="/blog/css/style.css">
+
+
+    
+
+    
+<meta name="generator" content="Hexo 8.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/blog/rop/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/blog/bitlocker-leak/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ran-var.github.io/blog/xml-overflow/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ran-var.github.io/blog/xml-overflow/&text=Stack Smashing Through XML: Using IoT Configs As Attack Vectors"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ran-var.github.io/blog/xml-overflow/&title=Stack Smashing Through XML: Using IoT Configs As Attack Vectors"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ran-var.github.io/blog/xml-overflow/&is_video=false&description=Stack Smashing Through XML: Using IoT Configs As Attack Vectors"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Stack Smashing Through XML: Using IoT Configs As Attack Vectors&body=Check out this article: https://ran-var.github.io/blog/xml-overflow/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ran-var.github.io/blog/xml-overflow/&title=Stack Smashing Through XML: Using IoT Configs As Attack Vectors"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ran-var.github.io/blog/xml-overflow/&title=Stack Smashing Through XML: Using IoT Configs As Attack Vectors"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ran-var.github.io/blog/xml-overflow/&title=Stack Smashing Through XML: Using IoT Configs As Attack Vectors"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ran-var.github.io/blog/xml-overflow/&title=Stack Smashing Through XML: Using IoT Configs As Attack Vectors"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ran-var.github.io/blog/xml-overflow/&name=Stack Smashing Through XML: Using IoT Configs As Attack Vectors&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ran-var.github.io/blog/xml-overflow/&t=Stack Smashing Through XML: Using IoT Configs As Attack Vectors"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Poking-at-Chinese-Firmware"><span class="toc-number">1.</span> <span class="toc-text">Poking at Chinese Firmware</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Understanding-XML-Structure-Without-Safety"><span class="toc-number">2.</span> <span class="toc-text">Understanding XML: Structure Without Safety</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Learning-from-Critical-Vulnerabilities"><span class="toc-number">3.</span> <span class="toc-text">Learning from Critical Vulnerabilities</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Config-Parsing-in-IoT-Devices"><span class="toc-number">4.</span> <span class="toc-text">Config Parsing in IoT Devices</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <a href="/blog/" class="back-link">← Back</a>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Stack Smashing Through XML: Using IoT Configs As Attack Vectors
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Ran Varshaver</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-09-16T00:00:00.000Z" class="dt-published" itemprop="datePublished">16-09-2025</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="Poking-at-Chinese-Firmware"><a href="#Poking-at-Chinese-Firmware" class="headerlink" title="Poking at Chinese Firmware"></a>Poking at Chinese Firmware</h2><p>I recently spent some time reversing a pre-historic smart device as a research exercise. While poking at the firmware binaries I stumbled on a bug inside how the device parses the config XML file.<br>The vendor hasn’t issued a statement yet(shocker) so I will try to the best of my ability to recreate a similar vulnerable function without <em>accidentally disclosing</em> any real detail that can be used to identify the device.</p>
+<h2 id="Understanding-XML-Structure-Without-Safety"><a href="#Understanding-XML-Structure-Without-Safety" class="headerlink" title="Understanding XML: Structure Without Safety"></a>Understanding XML: Structure Without Safety</h2><p>XML (eXtensible Markup Language) is a markup language that uses a hierarchical structure of elements enclosed in angle brackets.<br>Think of XML as a structuring system where information gets organized into labeled elements that can hold both data and other elements.</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">device</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>Generic Router<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">firmware_version</span>&gt;</span>2.1<span class="tag">&lt;/<span class="name">firmware_version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">device</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>XML elements can also contain attributes which provide additional metadata about the element, an attribute appears inside the opening tag and consists of a name-value pair:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">device</span> <span class="attr">type</span>=<span class="string">&quot;thermostat&quot;</span> <span class="attr">model</span>=<span class="string">&quot;v2.1&quot;</span>&gt;</span>Smart Home Device<span class="tag">&lt;/<span class="name">device</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>Nowadays XML is often compared and <em>somewhat replaced</em> by JSON or YAML which are considered lighter and simpler alternatives, but it remains a standard in government, healthcare, telecom, IoT, and finance systems where strict schemas and validation are critical.</p>
+<p>However, XML’s verbose nature and complex parsing requirements create more opportunities for security vulnerabilities. XML parsers must handle opening and closing tags, attributes, namespaces, character encoding, and various formatting edge cases.</p>
+<h2 id="Learning-from-Critical-Vulnerabilities"><a href="#Learning-from-Critical-Vulnerabilities" class="headerlink" title="Learning from Critical Vulnerabilities"></a>Learning from Critical Vulnerabilities</h2><p>Two critical XML parsing vulnerabilities demonstrate just how dangerous these flaws can be in production systems.</p>
+<p><a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/cve-2016-1834"><strong>CVE-2016-1834</strong></a> affected <code>libxml2 &lt;2.9.4</code>, a widely used XML parsing library. The vulnerability is a heap based buffer overflow in the <code>xmlStrncat</code> function which allowed attackers to execute remote code or cause a memory corruption based denial of service attack. The vulnerability was especially significant on Apple platforms, though unpatched Linux systems using libxml2 were also at risk.</p>
+<p><a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2019-5063"><strong>CVE-2019-5063</strong></a> affected <code>OpenCV 4.1.0</code>. It also involves a heap based buffer overflow in the XML parser, triggered when processing very long or unrecognized character entities in XML files and copying it into a fixed size buffer without proper bounds checking:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> CV_FS_MAX_LEN 4096</span></span><br><span class="line"><span class="type">char</span> strbuf[CV_FS_MAX_LEN + <span class="number">16</span>];</span><br></pre></td></tr></table></figure>
+
+<h2 id="Config-Parsing-in-IoT-Devices"><a href="#Config-Parsing-in-IoT-Devices" class="headerlink" title="Config Parsing in IoT Devices"></a>Config Parsing in IoT Devices</h2><p>To see how XML buffer overflows can happen in IoT devices, let’s look at a simple configuration parser for device credentials. This example reflects the same type of flaws found in <strong>CVE-2016-1834</strong> and <strong>CVE-2019-5063</strong>, but in the context of parsing default admin credentials from an XML file.</p>
+<p>Many IoT devices keep default credentials and network settings in <em>(ideally)</em> encrypted XML files that are loaded during startup. A typical parser might look like this:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;libxml/parser.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">char</span> username[<span class="number">16</span>];</span><br><span class="line">    <span class="type">char</span> password[<span class="number">32</span>];</span><br><span class="line">    <span class="type">char</span> device_id[<span class="number">36</span>];</span><br><span class="line">    <span class="type">char</span> wifi_ssid[<span class="number">32</span>];</span><br><span class="line">    <span class="type">int</span> config_version;</span><br><span class="line">&#125; <span class="type">config_t</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">parse_config</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* filename, <span class="type">config_t</span>* cfg)</span> &#123;</span><br><span class="line">    xmlDocPtr doc = xmlParseFile(filename);</span><br><span class="line">    <span class="keyword">if</span> (!doc) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">    xmlNodePtr root = xmlDocGetRootElement(doc);</span><br><span class="line">    <span class="keyword">if</span> (!root) &#123; xmlFreeDoc(doc); <span class="keyword">return</span> <span class="number">-1</span>; &#125;</span><br><span class="line"></span><br><span class="line">    xmlNodePtr node;</span><br><span class="line">    <span class="type">char</span> buf[<span class="number">256</span>];</span><br><span class="line">    <span class="keyword">for</span> (node = root-&gt;children; node; node = node-&gt;next) &#123;</span><br><span class="line">        <span class="keyword">if</span> (node-&gt;type != XML_ELEMENT_NODE) <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">char</span>* content = (<span class="type">char</span>*)xmlNodeGetContent(node);</span><br><span class="line">        <span class="keyword">if</span> (!content) <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">strcpy</span>(buf, content);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">strcmp</span>((<span class="type">char</span>*)node-&gt;name, <span class="string">&quot;username&quot;</span>) == <span class="number">0</span>)</span><br><span class="line">            <span class="built_in">strcpy</span>(cfg-&gt;username, buf);</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">strcmp</span>((<span class="type">char</span>*)node-&gt;name, <span class="string">&quot;password&quot;</span>) == <span class="number">0</span>)</span><br><span class="line">            <span class="built_in">strcpy</span>(cfg-&gt;password, buf);</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">strcmp</span>((<span class="type">char</span>*)node-&gt;name, <span class="string">&quot;device_id&quot;</span>) == <span class="number">0</span>)</span><br><span class="line">            <span class="built_in">strcpy</span>(cfg-&gt;device_id, buf);</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">strcmp</span>((<span class="type">char</span>*)node-&gt;name, <span class="string">&quot;wifi_network&quot;</span>) == <span class="number">0</span>)</span><br><span class="line">            <span class="built_in">strcpy</span>(cfg-&gt;wifi_ssid, buf);</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">strcmp</span>((<span class="type">char</span>*)node-&gt;name, <span class="string">&quot;config_ver&quot;</span>) == <span class="number">0</span>)</span><br><span class="line">            cfg-&gt;config_version = atoi(buf); <span class="comment">//only safe part of the parser</span></span><br><span class="line"></span><br><span class="line">        xmlFree(content);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    xmlFreeDoc(doc);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The full vulnerable parser <a target="_blank" rel="noopener" href="https://github.com/ran-var/xml_overflow">can be found here</a>.<br>With our parser compiled, we can inspect exactly what happens when an attacker supplies malicious input.</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pwndbg xml_demo</span><br><span class="line">pwndbg&gt; b parse_config</span><br><span class="line">pwndbg&gt; r</span><br></pre></td></tr></table></figure>
+
+<p>Once inside we can just step over instructions until we hit the part where our <em>trustworthy password</em> is copied into memory.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">─────────────────────────────────[ SOURCE (CODE) ]─────────────────────────────────</span><br><span class="line">In file: /home/rvarr/xml_overflow/parser.c:27</span><br><span class="line">   22         strcpy(buf, content);</span><br><span class="line">   23 </span><br><span class="line">   24         if (strcmp((char*)node-&gt;name, &quot;username&quot;) == 0)</span><br><span class="line">   25             strcpy(cfg-&gt;username, buf);</span><br><span class="line">   26         else if (strcmp((char*)node-&gt;name, &quot;password&quot;) == 0)</span><br><span class="line"> ► 27             strcpy(cfg-&gt;password, buf);</span><br><span class="line">   28         else if (strcmp((char*)node-&gt;name, &quot;device_id&quot;) == 0)</span><br><span class="line">   29             strcpy(cfg-&gt;device_id, buf);</span><br><span class="line">   30         else if (strcmp((char*)node-&gt;name, &quot;wifi_network&quot;) == 0)</span><br><span class="line">   31             strcpy(cfg-&gt;wifi_ssid, buf);</span><br><span class="line">   32         else if (strcmp((char*)node-&gt;name, &quot;config_ver&quot;) == 0)</span><br><span class="line">─────────────────────────────────────[ STACK ]─────────────────────────────────────</span><br><span class="line">00:0000│ rsp 0x7fffffffd890 —▸ 0x7fffffffd9d0 ◂— 0x6e696d6461 /* &#x27;admin&#x27; */</span><br><span class="line">01:0008│-128 0x7fffffffd898 —▸ 0x555555556004 ◂— &#x27;config.xml&#x27;</span><br><span class="line">02:0010│-120 0x7fffffffd8a0 ◂— &#x27;\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  \nBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB  \nCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC  \nDDDD                              \n    &#x27;</span><br><span class="line">03:0018│-118 0x7fffffffd8a8 ◂— &#x27;AAAAAAAAAAAAAAAAAAAAAAAAA  \nBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB  \nCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC  \nDDDD                              \n    &#x27;</span><br><span class="line">... ↓        2 skipped</span><br><span class="line">06:0030│-100 0x7fffffffd8c0 ◂— &#x27;A  \nBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB  \nCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC  \nDDDD                              \n    &#x27;</span><br><span class="line">07:0038│-0f8 0x7fffffffd8c8 ◂— &#x27;BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB  \nCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC  \nDDDD                              \n    &#x27;</span><br><span class="line">───────────────────────────────────[ BACKTRACE ]───────────────────────────────────</span><br><span class="line"> ► 0   0x5555555553b0 parse_config+278</span><br><span class="line">   1   0x5555555551dd main+36</span><br><span class="line">   2   0x7ffff7c24ca8 None</span><br><span class="line">   3   0x7ffff7c24d65 __libc_start_main+133</span><br><span class="line">   4   0x5555555550f1 _start+33</span><br><span class="line">───────────────────────────────────────────────────────────────────────────────────</span><br></pre></td></tr></table></figure>
+
+<p>At this point we’re right at the instruction that causes the overflow, so once we step over into the next instruction and inspect the memory at the struct.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; n</span><br><span class="line">pwndbg&gt; x/128bx &amp;cfg-&gt;password</span><br><span class="line">0x7fffffffd9f0:	0x0a	0x41	0x41	0x41	0x41	0x41	0x41	0x41</span><br><span class="line">0x7fffffffd9f8:	0x41	0x41	0x41	0x41	0x41	0x41	0x41	0x41</span><br><span class="line">0x7fffffffda00:	0x41	0x41	0x41	0x41	0x41	0x41	0x41	0x41</span><br><span class="line">0x7fffffffda08:	0x41	0x41	0x41	0x41	0x41	0x41	0x41	0x41</span><br><span class="line">0x7fffffffda10:	0x41	0x20	0x20	0x0a	0x42	0x42	0x42	0x42</span><br><span class="line">0x7fffffffda18:	0x42	0x42	0x42	0x42	0x42	0x42	0x42	0x42</span><br><span class="line">0x7fffffffda20:	0x42	0x42	0x42	0x42	0x42	0x42	0x42	0x42</span><br><span class="line">0x7fffffffda28:	0x42	0x42	0x42	0x42	0x42	0x42	0x42	0x42</span><br><span class="line">0x7fffffffda30:	0x42	0x42	0x42	0x42	0x42	0x42	0x42	0x42</span><br><span class="line">0x7fffffffda38:	0x42	0x42	0x42	0x42	0x20	0x20	0x0a	0x43</span><br><span class="line">0x7fffffffda40:	0x43	0x43	0x43	0x43	0x43	0x43	0x43	0x43</span><br><span class="line">0x7fffffffda48:	0x43	0x43	0x43	0x43	0x43	0x43	0x43	0x43</span><br><span class="line">0x7fffffffda50:	0x43	0x43	0x43	0x43	0x43	0x43	0x43	0x43</span><br><span class="line">0x7fffffffda58:	0x43	0x43	0x43	0x43	0x43	0x43	0x43	0x20</span><br><span class="line">0x7fffffffda60:	0x20	0x0a	0x44	0x44	0x44	0x44	0x20	0x20</span><br><span class="line">0x7fffffffda68:	0x20	0x20	0x20	0x20	0x20	0x20	0x20	0x20</span><br></pre></td></tr></table></figure>
+
+<p>Setting this memory view side by side with <code>config.xml</code> we are able to directly see the hex representation of the ASCII characters we’ve overflown the memory with:<br><code>A=0x41*32, B=0x42*36, C=0x43*32, D=0x44*4 </code></p>
+<p>This example was a significant oversimplification of how IoT&#x2F;smart home devices utilize XML for parsing credentials, but it gets the point across: <strong>blindly trusting XML and dumping it into fixed-size buffers is risky</strong>.<br>In real-world applications, it can crash devices, overwrite important memory, or even open the door to more serious exploits just as we’ve seen with the two CVEs covered and many more that have been discovered over the years.</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Poking-at-Chinese-Firmware"><span class="toc-number">1.</span> <span class="toc-text">Poking at Chinese Firmware</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Understanding-XML-Structure-Without-Safety"><span class="toc-number">2.</span> <span class="toc-text">Understanding XML: Structure Without Safety</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Learning-from-Critical-Vulnerabilities"><span class="toc-number">3.</span> <span class="toc-text">Learning from Critical Vulnerabilities</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Config-Parsing-in-IoT-Devices"><span class="toc-number">4.</span> <span class="toc-text">Config Parsing in IoT Devices</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ran-var.github.io/blog/xml-overflow/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ran-var.github.io/blog/xml-overflow/&text=Stack Smashing Through XML: Using IoT Configs As Attack Vectors"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ran-var.github.io/blog/xml-overflow/&title=Stack Smashing Through XML: Using IoT Configs As Attack Vectors"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ran-var.github.io/blog/xml-overflow/&is_video=false&description=Stack Smashing Through XML: Using IoT Configs As Attack Vectors"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Stack Smashing Through XML: Using IoT Configs As Attack Vectors&body=Check out this article: https://ran-var.github.io/blog/xml-overflow/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ran-var.github.io/blog/xml-overflow/&title=Stack Smashing Through XML: Using IoT Configs As Attack Vectors"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ran-var.github.io/blog/xml-overflow/&title=Stack Smashing Through XML: Using IoT Configs As Attack Vectors"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ran-var.github.io/blog/xml-overflow/&title=Stack Smashing Through XML: Using IoT Configs As Attack Vectors"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ran-var.github.io/blog/xml-overflow/&title=Stack Smashing Through XML: Using IoT Configs As Attack Vectors"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ran-var.github.io/blog/xml-overflow/&name=Stack Smashing Through XML: Using IoT Configs As Attack Vectors&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ran-var.github.io/blog/xml-overflow/&t=Stack Smashing Through XML: Using IoT Configs As Attack Vectors"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2025
+    Ran Varshaver
+  </div>
+  <div class="footer-right">
+  </div>
+</footer>
+
+    </div>
+    
+
+ 
+  <link
+    rel="preload"
+    href="/blog/lib/font-awesome/css/all.min.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript
+    ><link
+      rel="stylesheet"
+      href="/blog/lib/font-awesome/css/all.min.css"
+  /></noscript>
+
+
+    
+  
+<script src="/blog/lib/jquery/jquery.min.js"></script>
+
+
+
+
+
+
+  
+    
+<script src="/blog/lib/clipboard/clipboard.min.js"></script>
+
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/blog/js/main.js"></script>
+
+
+
+</body>
+</html>
