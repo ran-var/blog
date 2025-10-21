@@ -532,9 +532,10 @@ body {
 }
 .content a.icon {
   background: none;
+  color: #2bbc8a;
 }
 .content a.icon:hover {
-  color: #d480aa;
+  color: #49d5a5;
 }
 .content h1 a,
 .content .h1 a,
@@ -1085,7 +1086,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 .post-list .post-item .post-title-wrapper {
   width: 100%;
@@ -1118,7 +1119,7 @@ body {
     align-items: center;
     flex-wrap: nowrap;
     gap: 0;
-    margin-bottom: 5px;
+    margin-bottom: 1rem;
   }
   .post-list .post-item .post-title-wrapper {
     flex: 1;
@@ -1395,12 +1396,12 @@ article .content .caption {
   margin-right: 0;
 }
 #footer a {
-  color: #908d8d;
+  color: #2bbc8a;
   text-decoration: underline;
   background-image: none;
 }
 #footer a:hover {
-  color: #a6a4a4;
+  color: #49d5a5;
 }
 #footer .footer-left {
   height: 20px;
