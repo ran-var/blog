@@ -4,6 +4,9 @@ repositories:
   - title: Process Librarian
     link: https://github.com/ran-var/Process-Librarian
     description: Windows process analysis tool with built in DLL injector
+  - title: MalGen
+    link: https://github.com/ran-var/MalGen
+    description: CLI menu based malware generator
 
 # Set the page direction to RTL or LTR. default is LTR. (if you set it 'rtl', the 'vazir' font will be loaded.)
 direction: ltr
