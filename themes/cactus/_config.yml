@@ -3,7 +3,7 @@ projects_url: https://github.com/ran-var
 repositories:
   - title: Process Librarian
     link: https://github.com/ran-var/Process-Librarian
-    description: Windows process analysis tool with built in DLL injector
+    description: Windows process analysis tool with built in DLL injector and PE parser
   - title: MalGen
     link: https://github.com/ran-var/MalGen
     description: Building a CLI menu based malware generator
