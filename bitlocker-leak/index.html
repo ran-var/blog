@@ -24,7 +24,7 @@
 <meta property="og:image" content="https://ran-var.github.io/blog/images/nist.png">
 <meta property="og:image" content="https://ran-var.github.io/blog/images/pcrconfig.png">
 <meta property="article:published_time" content="2025-12-03T00:00:00.000Z">
-<meta property="article:modified_time" content="2025-12-03T18:13:21.669Z">
+<meta property="article:modified_time" content="2025-12-03T18:14:26.247Z">
 <meta property="article:author" content="Ran Varshaver">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://ran-var.github.io/blog/images/spichip.jpg">
@@ -374,7 +374,7 @@
 <td>BitLocker access control</td>
 </tr>
 </tbody></table>
-<p><code>PCR[0]</code> is the primary target - this is where the firmware’s own hash gets measured. If the payload can lie about this value, the rest of the chain doesn’t matter.</p>
+<p>PCR[0] is the primary target - this is where the firmware’s own hash gets measured. If the payload can lie about this value, the rest of the chain doesn’t matter.</p>
 <h3 id="Why-Firmware-Modification-Works"><a href="#Why-Firmware-Modification-Works" class="headerlink" title="Why Firmware Modification Works"></a>Why Firmware Modification Works</h3><p>The attack succeeds because of a fundamental architectural flaw we explained at the start:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Expected Behavior</span><br><span class="line">    ├─&gt; Firmware measures itself honestly</span><br><span class="line">    ├─&gt; hash(actual_firmware) → PCR[0]</span><br><span class="line">    ├─&gt; TPM compares PCR[0] to expected value</span><br><span class="line">    └─&gt; Match? → Unseal keys</span><br><span class="line"></span><br><span class="line">Attack Behavior</span><br><span class="line">    ├─&gt; Modified firmware lies about measurement</span><br><span class="line">    ├─&gt; hash(original_firmware) → PCR[0]</span><br><span class="line">    ├─&gt; TPM compares PCR[0] to expected value</span><br><span class="line">    ├─&gt; Looks correct → Unseals VMK</span><br><span class="line">    └─&gt; Compromised firmware now has unsealed keys</span><br></pre></td></tr></table></figure>
 
