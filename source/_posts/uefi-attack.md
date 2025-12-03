@@ -98,7 +98,7 @@ The SOIC8 clip needs to be oriented correctly, the wire for pin 1 in this instan
 The pinout for a standard SPI flash chip looks like this:
 ```
                                       ┌────────┐
-Chip Select - enables the chip  - CS  │1  •   8│ VCC -     Power
+Chip Select - enables the chip  - CS  │1 •    8│ VCC -     Power
 Data Out                        - DO  │2      7│ HOLD -    Pauses communication
 Write Protect                   - WP  │3      6│ CLK -     Clock
 Ground                          - GND │4      5│ DI -      Data In
