@@ -23,7 +23,7 @@ This measurement process creates what's called a "root of trust" but like any ch
 
 ### Who Measures the Measurer?
 
-BitLocker's security relies on a chain of trust, but there's a logical paradox at its core: the UEFI firmware measures everything else, but **nothing measures the firmware itself** when it first loads.
+BitLocker's security relies on a chain of trust, but there's a logical issue at its core: the UEFI firmware measures everything else, but **nothing measures the firmware itself** when it first loads.
 
 The TPM trusts whatever measurements the firmware sends it. If an attacker modifies the firmware to lie about those measurements, the TPM has no way to know. It will happily unseal the BitLocker keys as long as the firmware reports the "correct" PCR values - even if the actual boot process is completely compromised.
 
@@ -64,7 +64,7 @@ The irony is that BitLocker's strength its tight integration with the hardware b
 
 ## The $5 Attack: Hardware and Tools
 
-The beauty of this attack is how accessible it is. You don't need expensive equipment or a sophisticated lab setup. Everything you need can be ordered from AliExpress for under $5 and will arrive in a sketchy plastic bag with zero documentation.
+The beauty of this attack is how accessible it is. You don't need expensive equipment or a sophisticated lab setup. Everything you need can be ordered from AliExpress for under $5 and will arrive in a plastic bag with zero documentation.
 
 ### CH341A USB Programmer
 This little board is your main tool. It's designed for programming various flash chips and EEPROMs, but works perfectly for reading and writing SPI flash. The CH341A speaks SPI protocol and shows up as a USB device on your computer.
@@ -381,8 +381,8 @@ Secure Boot verifies that the OS bootloader (`bootmgfw.efi`) is signed by Micros
 
 An attacker can:
 - Modify the firmware's Secure Boot verification code
-- Or leave Secure Boot intact and just patch PCR measurement functions
-- Or hook the TPM unseal operation directly
+- Leave Secure Boot intact and just patch PCR measurement functions
+- Hook the TPM unseal operation directly
 
 Secure Boot protects the OS boot path. It doesn't protect the firmware itself from modification.
 
