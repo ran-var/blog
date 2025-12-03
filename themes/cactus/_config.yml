@@ -6,7 +6,7 @@ repositories:
     description: Windows process analysis tool with built in DLL injector and PE parser
   - title: MalGen
     link: https://github.com/ran-var/MalGen
-    description: Building a CLI menu based malware generator
+    description: Menu-based malware generator with customizable attributes and features
 
 # Set the page direction to RTL or LTR. default is LTR. (if you set it 'rtl', the 'vazir' font will be loaded.)
 direction: ltr
