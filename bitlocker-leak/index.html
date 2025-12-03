@@ -16,8 +16,15 @@
 <meta property="og:image" content="https://ran-var.github.io/blog/images/spichip.jpg">
 <meta property="og:image" content="https://ran-var.github.io/blog/images/flashprogrammer.jpg">
 <meta property="og:image" content="https://ran-var.github.io/blog/images/clip.jpg">
-<meta property="article:published_time" content="1111-11-11T00:00:00.000Z">
-<meta property="article:modified_time" content="2025-12-03T11:08:25.179Z">
+<meta property="og:image" content="https://ran-var.github.io/blog/images/bios.png">
+<meta property="og:image" content="https://ran-var.github.io/blog/images/nvram.png">
+<meta property="og:image" content="https://ran-var.github.io/blog/images/bioscontrol.png">
+<meta property="og:image" content="https://ran-var.github.io/blog/images/pr0.png">
+<meta property="og:image" content="https://ran-var.github.io/blog/images/chipsec.png">
+<meta property="og:image" content="https://ran-var.github.io/blog/images/nist.png">
+<meta property="og:image" content="https://ran-var.github.io/blog/images/pcrconfig.png">
+<meta property="article:published_time" content="2025-12-03T00:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-03T18:11:21.607Z">
 <meta property="article:author" content="Ran Varshaver">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://ran-var.github.io/blog/images/spichip.jpg">
@@ -61,8 +68,8 @@
     <span id="actions">
       <ul>
         
-        <li><a class="icon" aria-label="Previous post" href="/blog/xml-overflow/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
+        <li><a class="icon" aria-label="Next post" href="/blog/rop/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
         
         <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
         <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
@@ -92,7 +99,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#work-in-progress-%F0%9F%A4%AB"><span class="toc-number">1.</span> <span class="toc-text">work in progress 🤫</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BitLocker-101-Keys-TPMs-and-Cryptography"><span class="toc-number">2.</span> <span class="toc-text">BitLocker 101: Keys, TPMs, and Cryptography</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#How-the-Chain-of-Trust-Works"><span class="toc-number">2.1.</span> <span class="toc-text">How the Chain of Trust Works</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Who-Measures-the-Measurer"><span class="toc-number">2.2.</span> <span class="toc-text">Who Measures the Measurer?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Weakest-Link-SPI-Flash-Memory"><span class="toc-number">3.</span> <span class="toc-text">The Weakest Link: SPI Flash Memory</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-5-Attack-Hardware-and-Tools"><span class="toc-number">4.</span> <span class="toc-text">The $5 Attack: Hardware and Tools</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reading-the-Flash"><span class="toc-number">5.</span> <span class="toc-text">Reading the Flash</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Connecting-the-Clip"><span class="toc-number">5.1.</span> <span class="toc-text">Connecting the Clip</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Software-Setup"><span class="toc-number">5.2.</span> <span class="toc-text">Software Setup</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#What-You-Just-Extracted"><span class="toc-number">5.3.</span> <span class="toc-text">What You Just Extracted</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#What-An-Attacker-Can-Do-With-This-Dump"><span class="toc-number">5.4.</span> <span class="toc-text">What An Attacker Can Do With This Dump</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#work-in-progress-%F0%9F%A4%AB"><span class="toc-number">1.</span> <span class="toc-text">work in progress 🤫</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BitLocker-101-Keys-TPMs-and-Cryptography"><span class="toc-number">2.</span> <span class="toc-text">BitLocker 101: Keys, TPMs, and Cryptography</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#How-the-Chain-of-Trust-Works"><span class="toc-number">2.1.</span> <span class="toc-text">How the Chain of Trust Works</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Who-Measures-the-Measurer"><span class="toc-number">2.2.</span> <span class="toc-text">Who Measures the Measurer?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Weakest-Link-SPI-Flash-Memory"><span class="toc-number">3.</span> <span class="toc-text">The Weakest Link: SPI Flash Memory</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-5-Attack-Hardware-and-Tools"><span class="toc-number">4.</span> <span class="toc-text">The $5 Attack: Hardware and Tools</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CH341A-USB-Programmer"><span class="toc-number">4.1.</span> <span class="toc-text">CH341A USB Programmer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SOIC8-Test-Clip"><span class="toc-number">4.2.</span> <span class="toc-text">SOIC8 Test Clip</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reading-the-Flash"><span class="toc-number">5.</span> <span class="toc-text">Reading the Flash</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Connecting-the-Clip"><span class="toc-number">5.1.</span> <span class="toc-text">Connecting the Clip</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Software-Setup"><span class="toc-number">5.2.</span> <span class="toc-text">Software Setup</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#From-Hardware-Dump-to-Usable-Data"><span class="toc-number">6.</span> <span class="toc-text">From Hardware Dump to Usable Data</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Extracting-and-Analyzing-NVRAM"><span class="toc-number">6.1.</span> <span class="toc-text">Extracting and Analyzing NVRAM</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flash-Memory-Protection"><span class="toc-number">7.</span> <span class="toc-text">Flash Memory Protection</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#BIOS-CNTL-BIOS-Control-Register"><span class="toc-number">7.1.</span> <span class="toc-text">BIOS_CNTL - BIOS Control Register</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PR0-PR4-Protected-Range-Registers"><span class="toc-number">7.2.</span> <span class="toc-text">PR0-PR4 - Protected Range Registers</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Reality-Protection-Often-Disabled"><span class="toc-number">8.</span> <span class="toc-text">The Reality: Protection Often Disabled</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Modifying-the-Firmware"><span class="toc-number">9.</span> <span class="toc-text">Modifying the Firmware</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#What-Needs-to-Be-Modified"><span class="toc-number">9.1.</span> <span class="toc-text">What Needs to Be Modified</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#The-Attack-Flow"><span class="toc-number">9.2.</span> <span class="toc-text">The Attack Flow</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Understanding-BitLocker-Configuration"><span class="toc-number">9.3.</span> <span class="toc-text">Understanding BitLocker Configuration</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Why-Firmware-Modification-Works"><span class="toc-number">9.4.</span> <span class="toc-text">Why Firmware Modification Works</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#What-About-Secure-Boot"><span class="toc-number">9.5.</span> <span class="toc-text">What About Secure Boot?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Conclusion"><span class="toc-number">10.</span> <span class="toc-text">Conclusion</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Defense-in-Depth"><span class="toc-number">10.1.</span> <span class="toc-text">Defense in Depth</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#The-Broader-Lesson"><span class="toc-number">10.2.</span> <span class="toc-text">The Broader Lesson</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">11.</span> <span class="toc-text">References</span></a></li></ol>
       </div>
     
   </span>
@@ -118,7 +125,7 @@
       
     <div class="postdate">
       
-        <time datetime="1111-11-11T00:00:00.000Z" class="dt-published" itemprop="datePublished">11-11-1111</time>
+        <time datetime="2025-12-03T00:00:00.000Z" class="dt-published" itemprop="datePublished">03-12-2025</time>
         
       
     </div>
@@ -133,7 +140,7 @@
   
 
   <div class="content e-content" itemprop="articleBody">
-    <h2 id="work-in-progress-🤫"><a href="#work-in-progress-🤫" class="headerlink" title="work in progress 🤫"></a>work in progress 🤫</h2><p>Honestly the only reason I got into this rabbit hole is having an old laptop lying around and wondered how far I can stretch the line without bricking it entirely. In particular to see how disk encryption actually works under the hood and trying to break it by clipping some cheap hardware hacking tools from AliExpress like a CH341A.</p>
+    <h2 id="work-in-progress-🤫"><a href="#work-in-progress-🤫" class="headerlink" title="work in progress 🤫"></a>work in progress 🤫</h2><p>Honestly the only reason I got into this rabbit hole is having an old laptop lying around and wondered how far I can stretch the line without bricking it entirely. In particular to see how disk encryption actually works under the hood and trying to break it by clipping some cheap hardware hacking tools from AliExpress.</p>
 <p>Special thanks to <a target="_blank" rel="noopener" href="https://x.com/xenokovah">Xeno Kovah</a> and <a target="_blank" rel="noopener" href="https://p.ost2.fyi/">OpenSecurityTraining2</a> for sparking my curiosity and providing some incredible quality material.</p>
 <h2 id="BitLocker-101-Keys-TPMs-and-Cryptography"><a href="#BitLocker-101-Keys-TPMs-and-Cryptography" class="headerlink" title="BitLocker 101: Keys, TPMs, and Cryptography"></a>BitLocker 101: Keys, TPMs, and Cryptography</h2><p>Lets walk through how BitLocker is <em>supposed</em> to work, because the more you understand the elegant design, the more the real world flaws start to make sense.</p>
 <p>BitLocker represents Microsoft’s attempt to solve a genuinely hard problem: how do you automatically decrypt a hard drive when an authorized user boots their computer, but keep it locked when an unauthorized person tries to access the data?</p>
@@ -152,15 +159,16 @@
 <p><img src="/blog/images/spichip.jpg" alt="spi flash chip"></p>
 </div>
 
-<p>This is where a cheap flash programmer comes into play, it can directly read and write to SPI flash chips containing the sealed BitLocker keys or parameters used to derive them. The irony is that BitLocker’s strength its tight integration with the hardware boot process also creates its most exploitable weakness. Every piece of the trusted boot chain becomes a potential attack surface for someone with physical access.</p>
+<p>This is where a cheap flash programmer comes into play, it can directly read and write the firmware stored in SPI flash. While the disk encryption keys themselves reside on the disk and are sealed to the TPM, a modified firmware that lies to the TPM or logs keys after the TPM unseals them can enable an attacker with physical access to recover those keys.</p>
+<p>The irony is that BitLocker’s strength its tight integration with the hardware boot process also creates its most exploitable weakness. Every piece of the trusted boot chain becomes a potential attack surface for someone with physical access.</p>
 <h2 id="The-5-Attack-Hardware-and-Tools"><a href="#The-5-Attack-Hardware-and-Tools" class="headerlink" title="The $5 Attack: Hardware and Tools"></a>The $5 Attack: Hardware and Tools</h2><p>The beauty of this attack is how accessible it is. You don’t need expensive equipment or a sophisticated lab setup. Everything you need can be ordered from AliExpress for under $5 and will arrive in a sketchy plastic bag with zero documentation.</p>
-<p><strong>CH341A USB Programmer</strong><br>This little board is your main tool. It’s designed for programming various flash chips and EEPROMs, but works perfectly for reading and writing SPI flash. The CH341A speaks SPI protocol and shows up as a USB device on your computer.</p>
+<h3 id="CH341A-USB-Programmer"><a href="#CH341A-USB-Programmer" class="headerlink" title="CH341A USB Programmer"></a>CH341A USB Programmer</h3><p>This little board is your main tool. It’s designed for programming various flash chips and EEPROMs, but works perfectly for reading and writing SPI flash. The CH341A speaks SPI protocol and shows up as a USB device on your computer.</p>
 <div style="max-width: 500px; margin: 0 auto">
 
 <p><img src="/blog/images/flashprogrammer.jpg" alt="ch341a flash programmer"></p>
 </div>
 
-<p><strong>SOIC8 Test Clip</strong><br>Also called a “Pomona clip” or “SOIC clamp”, usually arriving as a bundle with the flash programmer. This clips directly onto the SPI flash chip without desoldering, making the attack non-destructive and quick. The spring-loaded pins make contact with the chip’s legs.</p>
+<h3 id="SOIC8-Test-Clip"><a href="#SOIC8-Test-Clip" class="headerlink" title="SOIC8 Test Clip"></a>SOIC8 Test Clip</h3><p>Also called a “Pomona clip” or “SOIC clamp”, usually arriving as a bundle with the flash programmer. This clips directly onto the SPI flash chip without desoldering, making the attack non-destructive and quick. The spring-loaded pins make contact with the chip’s legs.</p>
 <div style="max-width: 500px; margin: 0 auto">
 
 <p><img src="/blog/images/clip.jpg" alt="test clip"></p>
@@ -173,55 +181,226 @@
 <p>The pinout for a standard SPI flash chip looks like this:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">                                      ┌────────┐</span><br><span class="line">Chip Select - enables the chip  - CS  │1  •   8│ VCC -     Power</span><br><span class="line">Data Out                        - DO  │2      7│ HOLD -    Pauses communication</span><br><span class="line">Write Protect                   - WP  │3      6│ CLK -     Clock</span><br><span class="line">Ground                          - GND │4      5│ DI -      Data In</span><br><span class="line">                                      └────────┘</span><br></pre></td></tr></table></figure>
 
-<p>Make sure the board is completely powered off and unplugged. You’re about to put 3.3V directly on the chip and you don’t want the motherboard fighting you for control of the SPI bus.</p>
 <h3 id="Software-Setup"><a href="#Software-Setup" class="headerlink" title="Software Setup"></a>Software Setup</h3><p>Plug in your CH341A programmer and verify it’s detected:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flashrom -p ch341a_spi</span><br></pre></td></tr></table></figure>
 
 <p>You should see output showing the programmer was found and detected the flash chip:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">flashrom v1.2 on Linux</span><br><span class="line">Using clock_gettime <span class="keyword">for</span> delay loops (clk_id: 1, resolution: 1ns).</span><br><span class="line">Found Winbond flash chip <span class="string">&quot;W25Q64.V&quot;</span> (8192 kB, SPI) on ch341a_spi.</span><br></pre></td></tr></table></figure>
 
-<p>If flashrom complains about multiple chips detected or can’t identify the chip, double-check your clip connection and make sure it’s making good contact with all 8 pins. Sometimes you need to press down on the clip a bit or wiggle it to get solid contact.</p>
 <p>For an 8MB chip, this takes about 1-2 minutes. Flashrom reads the entire contents sequentially, block by block. You’ll see a progress indicator as it works through the address space. The real trick here is verifying your dump is clean. Flash reads can fail silently if the clip isn’t making perfect contact, so always read twice and compare checksums:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> flashrom -p ch341a_spi -r firmware_dump2.bin</span><br><span class="line"><span class="built_in">sha256sum</span> firmware_dump.bin firmware_dump2.bin</span><br></pre></td></tr></table></figure>
 
 <p>Matching checksums means you have a good dump. Different checksums? Press down harder, wiggle it, maybe even reseat it completely. It’s annoying but necessary - a corrupted dump is worthless.</p>
 <p>Once you have matching dumps, back them up. If you end up bricking the system later by writing bad firmware or experimenting with modifications, it’s good practice to have a backup on standby.</p>
-<h3 id="What-You-Just-Extracted"><a href="#What-You-Just-Extracted" class="headerlink" title="What You Just Extracted"></a>What You Just Extracted</h3><p>That binary file sitting on your disk now contains everything the system needs to boot:</p>
+<h2 id="From-Hardware-Dump-to-Usable-Data"><a href="#From-Hardware-Dump-to-Usable-Data" class="headerlink" title="From Hardware Dump to Usable Data"></a>From Hardware Dump to Usable Data</h2><p>Looking at what was just extracted we are able to see a nested structure that contains everything the system needs to boot - think of it like a ZIP file containing other ZIP files, each with their own internal organization. UEFITool will parse the Intel flash descriptor layout with a nice GUI:</p>
+<p>At the highest level, you’ll see the flash regions:</p>
 <ul>
-<li>The entire UEFI firmware code</li>
-<li>Boot configuration and runtime variables (NVRAM)</li>
-<li>Secure Boot keys and certificates  </li>
-<li>Platform-specific data and settings</li>
-<li>And somewhere in there, BitLocker key material</li>
+<li><strong>Flash Descriptor Region</strong> - Defines the layout</li>
+<li><strong>BIOS Region</strong> - Contains UEFI code and NVRAM</li>
+<li><strong>ME Region</strong> - Intel Management Engine firmware</li>
+<li><strong>GbE Region</strong> - Network controller config</li>
+<li><strong>PDR Region</strong> - Platform data</li>
 </ul>
-<p>The firmware typically follows Intel’s flash descriptor layout:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[Flash Descriptor Region]</span><br><span class="line">[BIOS/UEFI Region] ← Where BitLocker secrets hide</span><br><span class="line">[Management Engine Region]</span><br><span class="line">[GbE Region]</span><br><span class="line">[Platform Data Region]</span><br></pre></td></tr></table></figure>
+<p>The BIOS region is your target. Inside it, you’ll find:</p>
+<ul>
+<li>UEFI executable modules (DXE drivers, PEI modules)</li>
+<li><strong>NVRAM Variable Store</strong> - This is where EFI variables live</li>
+<li>Boot configuration and settings</li>
+<li>Potentially BitLocker-related data</li>
+</ul>
+<div style="max-width: 780px; margin: 0 auto">
 
-<p>Most of what matters for this attack lives in the BIOS&#x2F;UEFI region. That’s where the actual firmware code runs and where NVRAM variables get stored - including the sealed keys or parameters BitLocker uses. The NVRAM section is particularly interesting because it persists across reboots and contains runtime configuration data that the OS and firmware use to communicate.</p>
-<p>BitLocker doesn’t store the full volume master key directly in the firmware. Instead, it stores a “sealed” version that’s encrypted using TPM-specific keys. The TPM will only unseal this blob if the PCR values match what was measured during the original BitLocker setup. But having the sealed blob is still valuable - it’s half the puzzle.</p>
-<h3 id="What-An-Attacker-Can-Do-With-This-Dump"><a href="#What-An-Attacker-Can-Do-With-This-Dump" class="headerlink" title="What An Attacker Can Do With This Dump"></a>What An Attacker Can Do With This Dump</h3><p>With firmware access, several attack paths open up:</p>
-<p><strong>1. The “Evil Maid” Attack</strong></p>
+<p><img src="/blog/images/bios.png" alt="firmware dump"></p>
+</div>
+
+<h3 id="Extracting-and-Analyzing-NVRAM"><a href="#Extracting-and-Analyzing-NVRAM" class="headerlink" title="Extracting and Analyzing NVRAM"></a>Extracting and Analyzing NVRAM</h3><p>In UEFITool, right-click on an NVRAM volume (e.g., “EfiSystemNvDataFvGuid”), select “Extract body” to save just the NVRAM region. Now load the extracted NVRAM in UEFITool</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UEFITool nvram_extracted.bin</span><br></pre></td></tr></table></figure>
+
+<div style="max-width: 780px; margin: 0 auto">
+
+<p><img src="/blog/images/nvram.png" alt="nvram variables"></p>
+</div>
+
+<p>Now you see the <strong>actual EFI variables</strong> stored inside - this is what the firmware and OS use to communicate configuration:</p>
+<p><strong>What you’re looking at:</strong></p>
 <ul>
-<li>Modify the firmware to log the BitLocker PIN&#x2F;password</li>
-<li>Patch measurement code to always report “good” PCR values</li>
-<li>TPM unseals the keys because measurements appear correct</li>
-<li>System boots normally, user enters PIN, attacker captures it</li>
+<li><strong>VSS2 store</strong> - Variable Storage System format (the container)</li>
+<li><strong>Individual variables</strong> (VSS entries):<ul>
+<li><code>CustomMode</code> - Secure Boot custom mode setting</li>
+<li><code>VendorKeysNv</code> - Vendor key status</li>
+<li><code>FirmwareFeatures</code> &#x2F; <code>FirmwareFeaturesMask</code> - Platform capabilities</li>
+<li><code>EfiIScsiInitiatorNameProtocolGuid</code> - iSCSI boot configuration (multiple attempts)</li>
+<li><code>IScsiConfigGuid</code> - iSCSI settings</li>
+<li><code>Boot0000</code>, <code>Key0000</code>, <code>Key0001</code> - Boot and key configuration</li>
+<li><code>PlatformLang</code>, <code>Lang</code> - Language settings</li>
+<li><code>VarErrorFlag</code> - Error tracking</li>
 </ul>
-<p><strong>2. Direct Key Extraction</strong></p>
+</li>
+</ul>
+<p>Now you see the actual EFI variables - boot configuration, Secure Boot keys, platform settings. The “Invalid” entries show deleted variables that persist in firmware dumps. Old data isn’t immediately erased, just marked invalid.</p>
+<p>For the attack itself, deep analysis isn’t necessary - we just need to modify the firmware to lie about PCR measurements. But understanding the structure helps avoid bricking the system when making modifications.</p>
+<h2 id="Flash-Memory-Protection"><a href="#Flash-Memory-Protection" class="headerlink" title="Flash Memory Protection"></a>Flash Memory Protection</h2><p>Before we try modifying firmware, let’s understand what’s <em>supposed</em> to protect it. Modern Intel platforms have hardware protection mechanisms defined in NIST SP 800-147 “BIOS Protection Guidelines”. These are registers in the chipset designed to prevent unauthorized firmware modification.</p>
+<h3 id="BIOS-CNTL-BIOS-Control-Register"><a href="#BIOS-CNTL-BIOS-Control-Register" class="headerlink" title="BIOS_CNTL - BIOS Control Register"></a>BIOS_CNTL - BIOS Control Register</h3><p>This 8-bit register (offset DCh in LPC I&#x2F;F) controls firmware write access:</p>
+<div style="max-width: 600px; margin: 0 auto">
+
+<p><img src="/blog/images/bioscontrol.png" alt="bioscontrol"></p>
+</div>
+
 <ul>
-<li>Search NVRAM for sealed key blobs (specific GUID structures)</li>
-<li>Extract Volume Master Key (VMK) protectors</li>
-<li>If TPM is in a vulnerable state, attempt offline unsealing</li>
-<li>Some systems store recovery keys or intermediate secrets in plaintext</li>
-</ul>
-<p><strong>3. Persistent Firmware Backdoors</strong></p>
+<li><p><strong>Bit 5: SMM_BWP (SMM BIOS Write Protect)</strong></p>
 <ul>
-<li>Inject code into DXE drivers that runs before OS</li>
-<li>Hook boot services to intercept BitLocker operations</li>
-<li>Survives OS reinstalls and disk wipes</li>
-<li>Undetectable by traditional antivirus</li>
+<li><code>0</code> &#x3D; BIOS region SMM protection is disabled</li>
+<li><code>1</code> &#x3D; BIOS Region is NOT writable unless all processors are in SMM</li>
 </ul>
-<p>The firmware you just dumped is now a target for reverse engineering. Tools like UEFITool can parse the image structure, and scripts can search for BitLocker-related NVRAM variables.</p>
+</li>
+<li><p><strong>Bit 1: BLE (BIOS Lock Enable)</strong></p>
+<ul>
+<li><code>0</code> &#x3D; Setting BIOSWE will not cause SMIs</li>
+<li><code>1</code> &#x3D; Setting BIOSWE generates SMI to trap unauthorized writes</li>
+</ul>
+</li>
+<li><p><strong>Bit 0: BIOSWE (BIOS Write Enable)</strong></p>
+<ul>
+<li><code>0</code> &#x3D; Firmware is read-only</li>
+<li><code>1</code> &#x3D; Firmware is writable</li>
+</ul>
+</li>
+</ul>
+<h3 id="PR0-PR4-Protected-Range-Registers"><a href="#PR0-PR4-Protected-Range-Registers" class="headerlink" title="PR0-PR4 - Protected Range Registers"></a>PR0-PR4 - Protected Range Registers</h3><p>Five 32-bit registers (SPIBAR + 74h through 84h) define memory regions that should be protected:</p>
+<div style="max-width: 600px; margin: 0 auto">
+
+<p><img src="/blog/images/pr0.png" alt="pr0"></p>
+</div>
+
+<ul>
+<li><p><strong>Bit 31: WPE (Write Protection Enable)</strong></p>
+<ul>
+<li><code>0</code> &#x3D; Writes&#x2F;erases to this range are allowed</li>
+<li><code>1</code> &#x3D; Writes&#x2F;erases to this range are blocked by hardware</li>
+</ul>
+</li>
+<li><p><strong>Bit 15: RPE (Read Protection Enable)</strong></p>
+<ul>
+<li><code>0</code> &#x3D; Reads from this range are allowed</li>
+<li><code>1</code> &#x3D; Reads from this range are blocked by hardware</li>
+</ul>
+</li>
+<li><p><strong>Bits 28:16: Protected Range Limit</strong></p>
+<ul>
+<li>Defines the upper boundary of the protected region</li>
+</ul>
+</li>
+<li><p><strong>Bits 12:0: Protected Range Base</strong></p>
+<ul>
+<li>Defines the lower boundary of the protected region</li>
+</ul>
+</li>
+</ul>
+<h2 id="The-Reality-Protection-Often-Disabled"><a href="#The-Reality-Protection-Often-Disabled" class="headerlink" title="The Reality: Protection Often Disabled"></a>The Reality: Protection Often Disabled</h2><p>Research has shown that many systems ship with these protections entirely disabled - all registers set to <code>0x00</code>. On those systems, firmware is writable from the OS without any hardware programmer needed. But even on properly configured systems, these protections only defend against <strong>software-based attacks</strong>.</p>
+<div style="max-width: 600px; margin: 0 auto">
+
+<p><img src="/blog/images/chipsec.png" alt="chipsec"></p>
+</div>
+
+<p>When you physically clip onto the SPI chip with a CH341A, you bypass the chipset entirely. You’re talking directly to the flash memory. The protection registers have no effect because they only control access through the chipset’s memory controller.</p>
+<p><strong>What protection registers defend against:</strong></p>
+<ul>
+<li>Malware trying to flash BIOS from the OS</li>
+<li>Unauthorized software updates</li>
+<li>Rootkits attempting persistence</li>
+</ul>
+<p><strong>What they don’t defend against:</strong></p>
+<ul>
+<li>Physical access to SPI flash chip</li>
+<li>Hardware programmer attacks</li>
+<li>Evil Maid scenarios</li>
+</ul>
+<h2 id="Modifying-the-Firmware"><a href="#Modifying-the-Firmware" class="headerlink" title="Modifying the Firmware"></a>Modifying the Firmware</h2><p>Now that we have the firmware dump and understand the (lack of) protections, let’s look at how an attacker would modify it.</p>
+<p>You might assume firmware images are cryptographically signed and verified before execution, making modification impossible. However this is not the case for most systems.</p>
+<p>NIST SP 800-147 “BIOS Protection Guidelines” actually specifies that firmware updates <em>should</em> be authenticated:</p>
+<div style="max-width: 600px; margin: 0 auto">
+
+<p><img src="/blog/images/nist.png" alt="nist"></p>
+</div>
+
+<p><strong>What is actually signed:</strong></p>
+<ul>
+<li>Individual UEFI drivers and applications (PE32+ executables)</li>
+<li>OS bootloaders verified by Secure Boot</li>
+<li>Option ROMs from expansion cards</li>
+</ul>
+<p><strong>What isn’t signed:</strong></p>
+<ul>
+<li>The complete firmware image as a whole</li>
+<li>The flash descriptor and layout</li>
+<li>NVRAM variable storage</li>
+<li>Early boot code (SEC&#x2F;PEI phases)</li>
+<li>the code that does the signature verification</li>
+</ul>
+<p>This asymmetry is critical. Secure Boot verifies that <code>bootmgfw.efi</code> is signed by Microsoft, but <strong>nothing verifies the firmware code that performs this check</strong>. An attacker can modify the verification routine itself.</p>
+<p>Without a hardware root of trust, the firmware is the first code to execute and must be trusted by definition. There’s no external verifier watching it boot.</p>
+<h3 id="What-Needs-to-Be-Modified"><a href="#What-Needs-to-Be-Modified" class="headerlink" title="What Needs to Be Modified"></a>What Needs to Be Modified</h3><p>The attack targets the early boot code that performs TPM measurements. Specifically, we need to patch the functions that extend PCR values. When the firmware measures itself and reports to the TPM, we want it to report the <em>original</em> hash instead of the actual (modified) hash.</p>
+<p>The firmware measures itself and reports the measurement to the TPM. If we modify the firmware to lie about what it measured, the TPM has no way to verify the claim.</p>
+<h3 id="The-Attack-Flow"><a href="#The-Attack-Flow" class="headerlink" title="The Attack Flow"></a>The Attack Flow</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">Physical Access</span><br><span class="line">    ├─&gt; Extract firmware with flash programmer</span><br><span class="line">    ├─&gt; Verify checksums match</span><br><span class="line">    └─&gt; Backup original firmware</span><br><span class="line">    ↓</span><br><span class="line">Offline Analysis</span><br><span class="line">    ├─&gt; Calculate original PCR[0] hash</span><br><span class="line">    ├─&gt; Locate TPM measurement code</span><br><span class="line">    └─&gt; Identify injection points</span><br><span class="line">    ↓</span><br><span class="line">Firmware Modification</span><br><span class="line">    ├─&gt; Patch PCR extend functions</span><br><span class="line">    │   └─&gt; Report original hash instead of actual</span><br><span class="line">    ├─&gt; Inject key logging payload</span><br><span class="line">    └─&gt; Test in isolated environment</span><br><span class="line">    ↓</span><br><span class="line">Reflash Firmware</span><br><span class="line">    ├─&gt; Write modified firmware via CH341A</span><br><span class="line">    └─&gt; Verify write successful</span><br><span class="line">    ↓</span><br><span class="line">User Boots System</span><br><span class="line">    ├─&gt; Modified firmware executes</span><br><span class="line">    ├─&gt; Reports fake &quot;good&quot; PCR values to TPM</span><br><span class="line">    ├─&gt; TPM unseals BitLocker VMK</span><br><span class="line">    ├─&gt; Payload logs unsealed keys</span><br><span class="line">    └─&gt; Windows boots normally</span><br><span class="line">    ↓</span><br><span class="line">Key Extraction</span><br><span class="line">    ├─&gt; Attacker returns with physical access</span><br><span class="line">    ├─&gt; Extract logged keys from hidden storage</span><br><span class="line">    └─&gt; Full disk decryption achieved</span><br></pre></td></tr></table></figure>
+
+<h3 id="Understanding-BitLocker-Configuration"><a href="#Understanding-BitLocker-Configuration" class="headerlink" title="Understanding BitLocker Configuration"></a>Understanding BitLocker Configuration</h3><p>For the attack to work, the modified firmware needs to know which PCRs protect the BitLocker keys. In an actual attack, the payload would extract this information automatically during boot. Here’s what that data looks like:</p>
+<div style="max-width: 700px; margin: 0 auto">
+
+<p><img src="/blog/images/pcrconfig.png" alt="pcr config"></p>
+</div>
+
+<p>The payload reads this from BitLocker metadata and knows it needs to forge measurements for four specific PCRs:</p>
+<table>
+<thead>
+<tr>
+<th>PCR</th>
+<th>What Gets Measured</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>0</strong></td>
+<td>UEFI firmware code</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>Option ROM drivers</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>Boot Manager</td>
+</tr>
+<tr>
+<td><strong>11</strong></td>
+<td>BitLocker access control</td>
+</tr>
+</tbody></table>
+<p><code>PCR[0]</code> is the primary target - this is where the firmware’s own hash gets measured. If the payload can lie about this value, the rest of the chain doesn’t matter.</p>
+<h3 id="Why-Firmware-Modification-Works"><a href="#Why-Firmware-Modification-Works" class="headerlink" title="Why Firmware Modification Works"></a>Why Firmware Modification Works</h3><p>The attack succeeds because of a fundamental architectural flaw we explained at the start:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Expected Behavior</span><br><span class="line">    ├─&gt; Firmware measures itself honestly</span><br><span class="line">    ├─&gt; hash(actual_firmware) → PCR[0]</span><br><span class="line">    ├─&gt; TPM compares PCR[0] to expected value</span><br><span class="line">    └─&gt; Match? → Unseal keys</span><br><span class="line"></span><br><span class="line">Attack Behavior</span><br><span class="line">    ├─&gt; Modified firmware lies about measurement</span><br><span class="line">    ├─&gt; hash(original_firmware) → PCR[0]</span><br><span class="line">    ├─&gt; TPM compares PCR[0] to expected value</span><br><span class="line">    ├─&gt; Looks correct → Unseals VMK</span><br><span class="line">    └─&gt; Compromised firmware now has unsealed keys</span><br></pre></td></tr></table></figure>
+
+<p>The TPM has no way to verify the firmware’s claims. It receives measurements and trusts them - there’s no external verifier watching the firmware boot.</p>
+<h3 id="What-About-Secure-Boot"><a href="#What-About-Secure-Boot" class="headerlink" title="What About Secure Boot?"></a>What About Secure Boot?</h3><p>You might wonder: doesn’t UEFI Secure Boot prevent firmware modification?</p>
+<p>Secure Boot verifies that the OS bootloader (<code>bootmgfw.efi</code>) is signed by Microsoft. But it doesn’t verify the firmware code that performs this check.</p>
+<p>An attacker can:</p>
+<ul>
+<li>Modify the firmware’s Secure Boot verification code</li>
+<li>Or leave Secure Boot intact and just patch PCR measurement functions</li>
+<li>Or hook the TPM unseal operation directly</li>
+</ul>
+<p>Secure Boot protects the OS boot path. It doesn’t protect the firmware itself from modification.</p>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>What started as curiosity about disk encryption revealed a fundamental architectural flaw: the first code that runs must be trusted by definition, and on most systems, that code lives in a chip you can access with $5 of hardware.</p>
+<h3 id="Defense-in-Depth"><a href="#Defense-in-Depth" class="headerlink" title="Defense in Depth"></a>Defense in Depth</h3><p>Physical access defeats encryption when firmware lacks a hardware root of trust. Here’s what actually provides protection:</p>
+<ul>
+<li><strong>Enable TPM + PIN</strong> - Require a PIN at boot. This forces the attacker to capture credentials, not just modify firmware.</li>
+<li><strong>Verify firmware protection</strong> - Most systems ship with protections disabled.</li>
+<li><strong>Physical security</strong> - Don’t leave devices unattended in untrusted locations. Five minutes of physical access is all an attacker needs.</li>
+<li><strong>Hardware root of trust</strong> - Intel Boot Guard or AMD Platform Secure Boot. These burn verification keys into CPU fuses. Firmware must be OEM-signed or it won’t execute. This defeats the attack described here, but requires buying hardware that supports it.</li>
+</ul>
+<h3 id="The-Broader-Lesson"><a href="#The-Broader-Lesson" class="headerlink" title="The Broader Lesson"></a>The Broader Lesson</h3><p>This isn’t just about BitLocker. Every security system makes assumptions about what’s trustworthy. The difference between security theater and real protection is understanding where those assumptions break.</p>
+<p>For most people, TPM-only BitLocker protects against opportunistic theft - someone grabbing a laptop from a coffee shop won’t decrypt your files. But for targeted attacks with physical access, the threat model is different. An adversary with five minutes alone with your laptop can compromise the entire boot chain.</p>
+<p>The uncomfortable truth: measured boot only works if something external verifies the measurements. Without a hardware root of trust anchored in the CPU, the firmware that does the measuring is the weakest link. And on most consumer systems, that link costs $5 to break.</p>
+<hr>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a target="_blank" rel="noopener" href="https://web.archive.org/web/20160610025935/https://cansecwest.com/slides/2013/Evil%20Maid%20Just%20Got%20Angrier.pdf">Evil Maid Just Got Angrier | Yuriy Bulygin</a><br><a target="_blank" rel="noopener" href="https://opensecuritytraining.info/IntroBIOS_files/Day1_00_Advanced%20x86%20-%20BIOS%20and%20SMM%20Internals%20-%20Motivation.pdf">Advanced x86: BIOS and System Management Mode Internals | Xeno Kovah &amp; Corey Kallenberg</a><br><a target="_blank" rel="noopener" href="https://blackhat.com/presentations/bh-usa-09/WOJTCZUK/BHUSA09-Wojtczuk-AtkIntelBios-SLIDES.pdf">Attacking Intel® BIOS | Rafal Wojtczuk &amp; Alexander Tereshkin</a></p>
 
   </div>
 </article>
@@ -238,7 +417,7 @@
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#work-in-progress-%F0%9F%A4%AB"><span class="toc-number">1.</span> <span class="toc-text">work in progress 🤫</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BitLocker-101-Keys-TPMs-and-Cryptography"><span class="toc-number">2.</span> <span class="toc-text">BitLocker 101: Keys, TPMs, and Cryptography</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#How-the-Chain-of-Trust-Works"><span class="toc-number">2.1.</span> <span class="toc-text">How the Chain of Trust Works</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Who-Measures-the-Measurer"><span class="toc-number">2.2.</span> <span class="toc-text">Who Measures the Measurer?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Weakest-Link-SPI-Flash-Memory"><span class="toc-number">3.</span> <span class="toc-text">The Weakest Link: SPI Flash Memory</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-5-Attack-Hardware-and-Tools"><span class="toc-number">4.</span> <span class="toc-text">The $5 Attack: Hardware and Tools</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reading-the-Flash"><span class="toc-number">5.</span> <span class="toc-text">Reading the Flash</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Connecting-the-Clip"><span class="toc-number">5.1.</span> <span class="toc-text">Connecting the Clip</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Software-Setup"><span class="toc-number">5.2.</span> <span class="toc-text">Software Setup</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#What-You-Just-Extracted"><span class="toc-number">5.3.</span> <span class="toc-text">What You Just Extracted</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#What-An-Attacker-Can-Do-With-This-Dump"><span class="toc-number">5.4.</span> <span class="toc-text">What An Attacker Can Do With This Dump</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#work-in-progress-%F0%9F%A4%AB"><span class="toc-number">1.</span> <span class="toc-text">work in progress 🤫</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BitLocker-101-Keys-TPMs-and-Cryptography"><span class="toc-number">2.</span> <span class="toc-text">BitLocker 101: Keys, TPMs, and Cryptography</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#How-the-Chain-of-Trust-Works"><span class="toc-number">2.1.</span> <span class="toc-text">How the Chain of Trust Works</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Who-Measures-the-Measurer"><span class="toc-number">2.2.</span> <span class="toc-text">Who Measures the Measurer?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Weakest-Link-SPI-Flash-Memory"><span class="toc-number">3.</span> <span class="toc-text">The Weakest Link: SPI Flash Memory</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-5-Attack-Hardware-and-Tools"><span class="toc-number">4.</span> <span class="toc-text">The $5 Attack: Hardware and Tools</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CH341A-USB-Programmer"><span class="toc-number">4.1.</span> <span class="toc-text">CH341A USB Programmer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SOIC8-Test-Clip"><span class="toc-number">4.2.</span> <span class="toc-text">SOIC8 Test Clip</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reading-the-Flash"><span class="toc-number">5.</span> <span class="toc-text">Reading the Flash</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Connecting-the-Clip"><span class="toc-number">5.1.</span> <span class="toc-text">Connecting the Clip</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Software-Setup"><span class="toc-number">5.2.</span> <span class="toc-text">Software Setup</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#From-Hardware-Dump-to-Usable-Data"><span class="toc-number">6.</span> <span class="toc-text">From Hardware Dump to Usable Data</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Extracting-and-Analyzing-NVRAM"><span class="toc-number">6.1.</span> <span class="toc-text">Extracting and Analyzing NVRAM</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flash-Memory-Protection"><span class="toc-number">7.</span> <span class="toc-text">Flash Memory Protection</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#BIOS-CNTL-BIOS-Control-Register"><span class="toc-number">7.1.</span> <span class="toc-text">BIOS_CNTL - BIOS Control Register</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PR0-PR4-Protected-Range-Registers"><span class="toc-number">7.2.</span> <span class="toc-text">PR0-PR4 - Protected Range Registers</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Reality-Protection-Often-Disabled"><span class="toc-number">8.</span> <span class="toc-text">The Reality: Protection Often Disabled</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Modifying-the-Firmware"><span class="toc-number">9.</span> <span class="toc-text">Modifying the Firmware</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#What-Needs-to-Be-Modified"><span class="toc-number">9.1.</span> <span class="toc-text">What Needs to Be Modified</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#The-Attack-Flow"><span class="toc-number">9.2.</span> <span class="toc-text">The Attack Flow</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Understanding-BitLocker-Configuration"><span class="toc-number">9.3.</span> <span class="toc-text">Understanding BitLocker Configuration</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Why-Firmware-Modification-Works"><span class="toc-number">9.4.</span> <span class="toc-text">Why Firmware Modification Works</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#What-About-Secure-Boot"><span class="toc-number">9.5.</span> <span class="toc-text">What About Secure Boot?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Conclusion"><span class="toc-number">10.</span> <span class="toc-text">Conclusion</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Defense-in-Depth"><span class="toc-number">10.1.</span> <span class="toc-text">Defense in Depth</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#The-Broader-Lesson"><span class="toc-number">10.2.</span> <span class="toc-text">The Broader Lesson</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">11.</span> <span class="toc-text">References</span></a></li></ol>
       </div>
     
 
