@@ -14,8 +14,10 @@
 <meta property="og:description" content="work in progress 🤫Honestly the only reason I got into this rabbit hole is having an old laptop lying around and wondered how far I can stretch the line without bricking it entirely. In particular to">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://ran-var.github.io/blog/images/spichip.jpg">
+<meta property="og:image" content="https://ran-var.github.io/blog/images/flashprogrammer.jpg">
+<meta property="og:image" content="https://ran-var.github.io/blog/images/clip.jpg">
 <meta property="article:published_time" content="1111-11-11T00:00:00.000Z">
-<meta property="article:modified_time" content="2025-10-26T08:23:43.657Z">
+<meta property="article:modified_time" content="2025-12-03T11:08:25.179Z">
 <meta property="article:author" content="Ran Varshaver">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://ran-var.github.io/blog/images/spichip.jpg">
@@ -90,7 +92,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#work-in-progress-%F0%9F%A4%AB"><span class="toc-number">1.</span> <span class="toc-text">work in progress 🤫</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BitLocker-101-Keys-TPMs-and-Cryptography"><span class="toc-number">2.</span> <span class="toc-text">BitLocker 101: Keys, TPMs, and Cryptography</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#work-in-progress-%F0%9F%A4%AB"><span class="toc-number">1.</span> <span class="toc-text">work in progress 🤫</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BitLocker-101-Keys-TPMs-and-Cryptography"><span class="toc-number">2.</span> <span class="toc-text">BitLocker 101: Keys, TPMs, and Cryptography</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#How-the-Chain-of-Trust-Works"><span class="toc-number">2.1.</span> <span class="toc-text">How the Chain of Trust Works</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Who-Measures-the-Measurer"><span class="toc-number">2.2.</span> <span class="toc-text">Who Measures the Measurer?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Weakest-Link-SPI-Flash-Memory"><span class="toc-number">3.</span> <span class="toc-text">The Weakest Link: SPI Flash Memory</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-5-Attack-Hardware-and-Tools"><span class="toc-number">4.</span> <span class="toc-text">The $5 Attack: Hardware and Tools</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reading-the-Flash"><span class="toc-number">5.</span> <span class="toc-text">Reading the Flash</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Connecting-the-Clip"><span class="toc-number">5.1.</span> <span class="toc-text">Connecting the Clip</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Software-Setup"><span class="toc-number">5.2.</span> <span class="toc-text">Software Setup</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#What-You-Just-Extracted"><span class="toc-number">5.3.</span> <span class="toc-text">What You Just Extracted</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#What-An-Attacker-Can-Do-With-This-Dump"><span class="toc-number">5.4.</span> <span class="toc-text">What An Attacker Can Do With This Dump</span></a></li></ol></li></ol>
       </div>
     
   </span>
@@ -133,13 +135,93 @@
   <div class="content e-content" itemprop="articleBody">
     <h2 id="work-in-progress-🤫"><a href="#work-in-progress-🤫" class="headerlink" title="work in progress 🤫"></a>work in progress 🤫</h2><p>Honestly the only reason I got into this rabbit hole is having an old laptop lying around and wondered how far I can stretch the line without bricking it entirely. In particular to see how disk encryption actually works under the hood and trying to break it by clipping some cheap hardware hacking tools from AliExpress like a CH341A.</p>
 <p>Special thanks to <a target="_blank" rel="noopener" href="https://x.com/xenokovah">Xeno Kovah</a> and <a target="_blank" rel="noopener" href="https://p.ost2.fyi/">OpenSecurityTraining2</a> for sparking my curiosity and providing some incredible quality material.</p>
-<h2 id="BitLocker-101-Keys-TPMs-and-Cryptography"><a href="#BitLocker-101-Keys-TPMs-and-Cryptography" class="headerlink" title="BitLocker 101: Keys, TPMs, and Cryptography"></a>BitLocker 101: Keys, TPMs, and Cryptography</h2><p>Lets walk through how BitLocker is supposed to work, because the more you understand the elegant design, the more the real world flaws start to make sense.<br>BitLocker represents Microsoft’s attempt to solve a genuinely hard problem: how do you automatically decrypt a hard drive when an authorized user boots their computer, but keep it locked when an unauthorized person tries to access the data?</p>
+<h2 id="BitLocker-101-Keys-TPMs-and-Cryptography"><a href="#BitLocker-101-Keys-TPMs-and-Cryptography" class="headerlink" title="BitLocker 101: Keys, TPMs, and Cryptography"></a>BitLocker 101: Keys, TPMs, and Cryptography</h2><p>Lets walk through how BitLocker is <em>supposed</em> to work, because the more you understand the elegant design, the more the real world flaws start to make sense.</p>
+<p>BitLocker represents Microsoft’s attempt to solve a genuinely hard problem: how do you automatically decrypt a hard drive when an authorized user boots their computer, but keep it locked when an unauthorized person tries to access the data?</p>
 <p>The solution relies on a “trusted boot” process. Think of it as a chain of cryptographic measurements that starts with your computer’s firmware and continues through each piece of software that loads during startup. Each component hashes the next, creating a unique fingerprint of your system’s exact boot state.</p>
-<p>It does so by using what’s called a Trusted Platform Module(TPM) chip, which only hands over the keys once the measured state matches the same state as when Bitlocker was first configured on the machine. If anything significant has changed in the boot process the TPM chip will not transfer the keys and may require a Bitlocker recovery process.</p>
+<h3 id="How-the-Chain-of-Trust-Works"><a href="#How-the-Chain-of-Trust-Works" class="headerlink" title="How the Chain of Trust Works"></a>How the Chain of Trust Works</h3><p>It does so by using what’s called a Trusted Platform Module(TPM) chip, which only hands over the keys once the measured state matches the same state as when Bitlocker was first configured on the machine. If anything significant has changed in the boot process the TPM chip will not transfer the keys and may require a Bitlocker recovery process.</p>
 <p>This measurement process creates what’s called a “root of trust” but like any chain, it’s only as strong as its weakest link. The TPM measures each component, but it has to trust that the measurements it receives are valid, and this is where the elegance starts to show cracks.</p>
-<p>When your computer boots, the UEFI&#x2F;BIOS firmware is the first code to run, responsible for measuring itself and the next component in the chain. But here’s the catch: the UEFI firmware lives in SPI flash memory which is a small chip that’s often easily accessible on the motherboard and wasn’t designed with sophisticated tamper protection in mind.</p>
-<p><em>Exercise! Try looking at an old motherboard or any PCB you have lying around and find a small 8-legged chip and do a short google search on the text that’s written on it, most chip vendors provide an open source datasheet</em><br><img src="/blog/images/spichip.jpg" alt="spi flash chip"></p>
+<h3 id="Who-Measures-the-Measurer"><a href="#Who-Measures-the-Measurer" class="headerlink" title="Who Measures the Measurer?"></a>Who Measures the Measurer?</h3><p>BitLocker’s security relies on a chain of trust, but there’s a logical paradox at its core: the UEFI firmware measures everything else, but <strong>nothing measures the firmware itself</strong> when it first loads.</p>
+<p>The TPM trusts whatever measurements the firmware sends it. If an attacker modifies the firmware to lie about those measurements, the TPM has no way to know. It will happily unseal the BitLocker keys as long as the firmware reports the “correct” PCR values - even if the actual boot process is completely compromised.</p>
+<p>This is the “Static Core Root of Trust for Measurement” (CRTM) problem. The first code that runs is inherently trusted, with no way to verify its integrity from outside the system.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Initial startup FW at CPU reset vector</span><br><span class="line">PCR[0] ← CRTM, UEFI Firmware, PEI/DXE [BIOS]</span><br><span class="line">- UEFI Boot and Runtime Services, Embedded EFI OROMs</span><br><span class="line">- SMI Handlers, Static ACPI Tables</span><br><span class="line">PCR[1] ← SMBIOS, ACPI Tables, Platform Configuration Data</span><br><span class="line">PCR[2] ← EFI Drivers from Expansion Cards [Option ROMs]</span><br><span class="line">PCR[3] ← [Option ROM Data and Configuration]</span><br><span class="line">PCR[4] ← UEFI OS Loader, UEFI Applications [MBR]</span><br><span class="line">PCR[5] ← EFI Variables, GUID Partition Table [MBR Partition Table]</span><br><span class="line">PCR[6] ← State Transitions and Wake Events</span><br><span class="line">PCR[7] ← UEFI Secure Boot keys (PK/KEK) and variables (dbx..)</span><br><span class="line">PCR[8] ← TPM Aware OS specific hashes [NTFS Boot Sector]</span><br><span class="line">PCR[9] ← TPM Aware OS specific hashes [NTFS Boot Block]</span><br><span class="line">PCR[10] ← [Boot Manager]</span><br><span class="line">PCR[11] ← BitLocker Access Control</span><br></pre></td></tr></table></figure>
+
+<h2 id="The-Weakest-Link-SPI-Flash-Memory"><a href="#The-Weakest-Link-SPI-Flash-Memory" class="headerlink" title="The Weakest Link: SPI Flash Memory"></a>The Weakest Link: SPI Flash Memory</h2><p>When your computer boots, the UEFI&#x2F;BIOS firmware is the first code to run, responsible for measuring itself and the next component in the chain. But here’s the catch: the UEFI firmware lives in SPI flash memory which is a small chip that’s often easily accessible on the motherboard and wasn’t designed with sophisticated tamper protection in mind.</p>
+<p><em>Exercise! Try looking at an old motherboard or any PCB you have lying around and find a small 8-legged chip and do a short google search on the text that’s written on it, most chip vendors provide an open source datasheet</em></p>
+<div style="max-width: 500px; margin: 0 auto">
+
+<p><img src="/blog/images/spichip.jpg" alt="spi flash chip"></p>
+</div>
+
 <p>This is where a cheap flash programmer comes into play, it can directly read and write to SPI flash chips containing the sealed BitLocker keys or parameters used to derive them. The irony is that BitLocker’s strength its tight integration with the hardware boot process also creates its most exploitable weakness. Every piece of the trusted boot chain becomes a potential attack surface for someone with physical access.</p>
+<h2 id="The-5-Attack-Hardware-and-Tools"><a href="#The-5-Attack-Hardware-and-Tools" class="headerlink" title="The $5 Attack: Hardware and Tools"></a>The $5 Attack: Hardware and Tools</h2><p>The beauty of this attack is how accessible it is. You don’t need expensive equipment or a sophisticated lab setup. Everything you need can be ordered from AliExpress for under $5 and will arrive in a sketchy plastic bag with zero documentation.</p>
+<p><strong>CH341A USB Programmer</strong><br>This little board is your main tool. It’s designed for programming various flash chips and EEPROMs, but works perfectly for reading and writing SPI flash. The CH341A speaks SPI protocol and shows up as a USB device on your computer.</p>
+<div style="max-width: 500px; margin: 0 auto">
+
+<p><img src="/blog/images/flashprogrammer.jpg" alt="ch341a flash programmer"></p>
+</div>
+
+<p><strong>SOIC8 Test Clip</strong><br>Also called a “Pomona clip” or “SOIC clamp”, usually arriving as a bundle with the flash programmer. This clips directly onto the SPI flash chip without desoldering, making the attack non-destructive and quick. The spring-loaded pins make contact with the chip’s legs.</p>
+<div style="max-width: 500px; margin: 0 auto">
+
+<p><img src="/blog/images/clip.jpg" alt="test clip"></p>
+</div>
+
+<h2 id="Reading-the-Flash"><a href="#Reading-the-Flash" class="headerlink" title="Reading the Flash"></a>Reading the Flash</h2><p>Now comes the fun part. Most laptops make this <em>almost too easy</em> - you just need to pop off the bottom cover, no security screws, no tamper seals, nothing.</p>
+<p>Once you’re in, you need to locate the SPI flash chip. The chip itself is typically SOIC-8 package, which is just a fancy way of saying it has 8 legs and is surface-mounted.</p>
+<p>Sometimes the chip is hiding under a cable or tucked behind a metal EMI shield. In those cases, you might need to carefully move cables aside or remove a few more screws to access it. I’ve also seen chips positioned on the <em>other side</em> of the motherboard, which means you need to fully remove the board to access them - annoying but not impossible.</p>
+<h3 id="Connecting-the-Clip"><a href="#Connecting-the-Clip" class="headerlink" title="Connecting the Clip"></a>Connecting the Clip</h3><p>The SOIC8 clip needs to be oriented correctly, the wire for pin 1 in this instance is colored in red for easy identification. And as for the chip pin 1 is almost always marked with a small dot in the corner, otherwise just refer to the datasheet. Get this wrong and you’ll either read garbage or potentially damage something onboard.</p>
+<p>The pinout for a standard SPI flash chip looks like this:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">                                      ┌────────┐</span><br><span class="line">Chip Select - enables the chip  - CS  │1  •   8│ VCC -     Power</span><br><span class="line">Data Out                        - DO  │2      7│ HOLD -    Pauses communication</span><br><span class="line">Write Protect                   - WP  │3      6│ CLK -     Clock</span><br><span class="line">Ground                          - GND │4      5│ DI -      Data In</span><br><span class="line">                                      └────────┘</span><br></pre></td></tr></table></figure>
+
+<p>Make sure the board is completely powered off and unplugged. You’re about to put 3.3V directly on the chip and you don’t want the motherboard fighting you for control of the SPI bus.</p>
+<h3 id="Software-Setup"><a href="#Software-Setup" class="headerlink" title="Software Setup"></a>Software Setup</h3><p>Plug in your CH341A programmer and verify it’s detected:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flashrom -p ch341a_spi</span><br></pre></td></tr></table></figure>
+
+<p>You should see output showing the programmer was found and detected the flash chip:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">flashrom v1.2 on Linux</span><br><span class="line">Using clock_gettime <span class="keyword">for</span> delay loops (clk_id: 1, resolution: 1ns).</span><br><span class="line">Found Winbond flash chip <span class="string">&quot;W25Q64.V&quot;</span> (8192 kB, SPI) on ch341a_spi.</span><br></pre></td></tr></table></figure>
+
+<p>If flashrom complains about multiple chips detected or can’t identify the chip, double-check your clip connection and make sure it’s making good contact with all 8 pins. Sometimes you need to press down on the clip a bit or wiggle it to get solid contact.</p>
+<p>For an 8MB chip, this takes about 1-2 minutes. Flashrom reads the entire contents sequentially, block by block. You’ll see a progress indicator as it works through the address space. The real trick here is verifying your dump is clean. Flash reads can fail silently if the clip isn’t making perfect contact, so always read twice and compare checksums:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> flashrom -p ch341a_spi -r firmware_dump2.bin</span><br><span class="line"><span class="built_in">sha256sum</span> firmware_dump.bin firmware_dump2.bin</span><br></pre></td></tr></table></figure>
+
+<p>Matching checksums means you have a good dump. Different checksums? Press down harder, wiggle it, maybe even reseat it completely. It’s annoying but necessary - a corrupted dump is worthless.</p>
+<p>Once you have matching dumps, back them up. If you end up bricking the system later by writing bad firmware or experimenting with modifications, it’s good practice to have a backup on standby.</p>
+<h3 id="What-You-Just-Extracted"><a href="#What-You-Just-Extracted" class="headerlink" title="What You Just Extracted"></a>What You Just Extracted</h3><p>That binary file sitting on your disk now contains everything the system needs to boot:</p>
+<ul>
+<li>The entire UEFI firmware code</li>
+<li>Boot configuration and runtime variables (NVRAM)</li>
+<li>Secure Boot keys and certificates  </li>
+<li>Platform-specific data and settings</li>
+<li>And somewhere in there, BitLocker key material</li>
+</ul>
+<p>The firmware typically follows Intel’s flash descriptor layout:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[Flash Descriptor Region]</span><br><span class="line">[BIOS/UEFI Region] ← Where BitLocker secrets hide</span><br><span class="line">[Management Engine Region]</span><br><span class="line">[GbE Region]</span><br><span class="line">[Platform Data Region]</span><br></pre></td></tr></table></figure>
+
+<p>Most of what matters for this attack lives in the BIOS&#x2F;UEFI region. That’s where the actual firmware code runs and where NVRAM variables get stored - including the sealed keys or parameters BitLocker uses. The NVRAM section is particularly interesting because it persists across reboots and contains runtime configuration data that the OS and firmware use to communicate.</p>
+<p>BitLocker doesn’t store the full volume master key directly in the firmware. Instead, it stores a “sealed” version that’s encrypted using TPM-specific keys. The TPM will only unseal this blob if the PCR values match what was measured during the original BitLocker setup. But having the sealed blob is still valuable - it’s half the puzzle.</p>
+<h3 id="What-An-Attacker-Can-Do-With-This-Dump"><a href="#What-An-Attacker-Can-Do-With-This-Dump" class="headerlink" title="What An Attacker Can Do With This Dump"></a>What An Attacker Can Do With This Dump</h3><p>With firmware access, several attack paths open up:</p>
+<p><strong>1. The “Evil Maid” Attack</strong></p>
+<ul>
+<li>Modify the firmware to log the BitLocker PIN&#x2F;password</li>
+<li>Patch measurement code to always report “good” PCR values</li>
+<li>TPM unseals the keys because measurements appear correct</li>
+<li>System boots normally, user enters PIN, attacker captures it</li>
+</ul>
+<p><strong>2. Direct Key Extraction</strong></p>
+<ul>
+<li>Search NVRAM for sealed key blobs (specific GUID structures)</li>
+<li>Extract Volume Master Key (VMK) protectors</li>
+<li>If TPM is in a vulnerable state, attempt offline unsealing</li>
+<li>Some systems store recovery keys or intermediate secrets in plaintext</li>
+</ul>
+<p><strong>3. Persistent Firmware Backdoors</strong></p>
+<ul>
+<li>Inject code into DXE drivers that runs before OS</li>
+<li>Hook boot services to intercept BitLocker operations</li>
+<li>Survives OS reinstalls and disk wipes</li>
+<li>Undetectable by traditional antivirus</li>
+</ul>
+<p>The firmware you just dumped is now a target for reverse engineering. Tools like UEFITool can parse the image structure, and scripts can search for BitLocker-related NVRAM variables.</p>
 
   </div>
 </article>
@@ -156,7 +238,7 @@
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#work-in-progress-%F0%9F%A4%AB"><span class="toc-number">1.</span> <span class="toc-text">work in progress 🤫</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BitLocker-101-Keys-TPMs-and-Cryptography"><span class="toc-number">2.</span> <span class="toc-text">BitLocker 101: Keys, TPMs, and Cryptography</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#work-in-progress-%F0%9F%A4%AB"><span class="toc-number">1.</span> <span class="toc-text">work in progress 🤫</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BitLocker-101-Keys-TPMs-and-Cryptography"><span class="toc-number">2.</span> <span class="toc-text">BitLocker 101: Keys, TPMs, and Cryptography</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#How-the-Chain-of-Trust-Works"><span class="toc-number">2.1.</span> <span class="toc-text">How the Chain of Trust Works</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Who-Measures-the-Measurer"><span class="toc-number">2.2.</span> <span class="toc-text">Who Measures the Measurer?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Weakest-Link-SPI-Flash-Memory"><span class="toc-number">3.</span> <span class="toc-text">The Weakest Link: SPI Flash Memory</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-5-Attack-Hardware-and-Tools"><span class="toc-number">4.</span> <span class="toc-text">The $5 Attack: Hardware and Tools</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reading-the-Flash"><span class="toc-number">5.</span> <span class="toc-text">Reading the Flash</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Connecting-the-Clip"><span class="toc-number">5.1.</span> <span class="toc-text">Connecting the Clip</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Software-Setup"><span class="toc-number">5.2.</span> <span class="toc-text">Software Setup</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#What-You-Just-Extracted"><span class="toc-number">5.3.</span> <span class="toc-text">What You Just Extracted</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#What-An-Attacker-Can-Do-With-This-Dump"><span class="toc-number">5.4.</span> <span class="toc-text">What An Attacker Can Do With This Dump</span></a></li></ol></li></ol>
       </div>
     
 
