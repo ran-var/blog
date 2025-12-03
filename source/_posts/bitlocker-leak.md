@@ -350,7 +350,7 @@ The payload reads this from BitLocker metadata and knows it needs to forge measu
 | **4** | Boot Manager |
 | **11** | BitLocker access control |
 
-`PCR[0]` is the primary target - this is where the firmware's own hash gets measured. If the payload can lie about this value, the rest of the chain doesn't matter.
+PCR[0] is the primary target - this is where the firmware's own hash gets measured. If the payload can lie about this value, the rest of the chain doesn't matter.
 
 ### Why Firmware Modification Works
 
