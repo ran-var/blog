@@ -2,7 +2,6 @@
 title: "$5 UEFI Attack: How Attackers Extract BitLocker Keys Through Hardware"
 date: 2025-12-03
 ---
-## work in progress 🤫
 
 Honestly the only reason I got into this rabbit hole is having an old laptop lying around and wondered how far I can stretch the line without bricking it entirely. In particular to see how disk encryption actually works under the hood and trying to break it by clipping some cheap hardware hacking tools from AliExpress.
 
