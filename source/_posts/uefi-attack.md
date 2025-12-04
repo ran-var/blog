@@ -86,9 +86,9 @@ Also called a "Pomona clip" or "SOIC clamp", usually arriving as a bundle with t
 
 Most laptops make this *almost too easy* - you just need to pop off the bottom cover, no security screws, no tamper seals, nothing.
 
-Once you're in, you need to locate the SPI flash chip. The chip itself is typically SOIC-8 package, which is just a fancy way of saying it has 8 legs and is surface-mounted.
+Once you're in, you need to locate the SPI flash chip. The chip itself is typically SOIC-8 package, which is just a way of saying it has 8 legs and is surface mounted on the board.
 
-Sometimes the chip is hiding under a cable or tucked behind a metal EMI shield. In those cases, you might need to carefully move cables aside or remove a few more screws to access it. I've also seen chips positioned on the *other side* of the motherboard, which means you need to fully remove the board to access them - annoying but not impossible.
+Sometimes the chip is hiding under a cable or behind a metal EMI shield. In those cases, you might need to carefully move cables aside or remove a few more screws to access it. I've also seen chips positioned on the *other side* of the motherboard, which means you need to fully remove the board to access them - annoying but not impossible.
 
 ### Connecting the Clip
 
@@ -120,7 +120,7 @@ Using clock_gettime for delay loops (clk_id: 1, resolution: 1ns).
 Found Winbond flash chip "W25Q64.V" (8192 kB, SPI) on ch341a_spi.
 ```
 
-For an 8MB chip, this takes about 1-2 minutes. Flashrom reads the entire contents sequentially, block by block. You'll see a progress indicator as it works through the address space. The real trick here is verifying your dump is clean. Flash reads can fail silently if the clip isn't making perfect contact, so always read twice and compare checksums:
+For an 8MB chip, this takes about 1-2 minutes. Flashrom reads the entire contents sequentially, block by block through the address space. The real trick here is verifying your dump is clean since flash reads can fail if the clip wasn't seated perfectly, so always read twice and compare checksums.
 
 ```bash
 sudo flashrom -p ch341a_spi -r firmware_dump2.bin
@@ -245,7 +245,7 @@ Research has shown that many systems ship with these protections entirely disabl
 
 </div>
 
-When you physically clip onto the SPI chip with a CH341A, you bypass the chipset entirely. You're talking directly to the flash memory. The protection registers have no effect because they only control access through the chipset's memory controller.
+When you physically clip onto the SPI chip with a CH341A, you bypass the chipset entirely. The protection registers have no effect because they only control access through the chipset's memory controller.
 
 **What protection registers defend against:**
 - Malware trying to flash BIOS from the OS
@@ -310,7 +310,6 @@ Firmware Modification
     ├─> Patch PCR extend functions
     │   └─> Report original hash instead of actual
     ├─> Inject key logging payload
-    └─> Test in isolated environment
     ↓
 Reflash Firmware
     ├─> Write modified firmware via CH341A
@@ -382,7 +381,7 @@ An attacker can:
 - Leave Secure Boot intact and just patch PCR measurement functions
 - Hook the TPM unseal operation directly
 
-Secure Boot protects the OS boot path. It doesn't protect the firmware itself from modification.
+Secure Boot protects the OS boot path but not the firmware itself from modification.
 
 ## Conclusion
 
