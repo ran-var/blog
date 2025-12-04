@@ -75,7 +75,7 @@ This little board is your main tool. It's designed for programming various flash
 </div>
 
 ### SOIC8 Test Clip
-Also called a "Pomona clip" or "SOIC clamp", usually arriving as a bundle with the flash programmer. This clips directly onto the SPI flash chip without desoldering, making the attack non-destructive and quick. The spring-loaded pins make contact with the chip's legs.
+Also called a "Pomona clip" or "SOIC clamp", usually arriving as a bundle with the flash programmer. This clips directly onto the SPI flash chip's pinouts without desoldering, making the attack non-destructive and quick.
 <div style="max-width: 500px; margin: 0 auto">
 
 ![test clip](/images/clip.jpg)
@@ -84,7 +84,7 @@ Also called a "Pomona clip" or "SOIC clamp", usually arriving as a bundle with t
 
 ## Reading the Flash
 
-Now comes the fun part. Most laptops make this *almost too easy* - you just need to pop off the bottom cover, no security screws, no tamper seals, nothing.
+Most laptops make this *almost too easy* - you just need to pop off the bottom cover, no security screws, no tamper seals, nothing.
 
 Once you're in, you need to locate the SPI flash chip. The chip itself is typically SOIC-8 package, which is just a fancy way of saying it has 8 legs and is surface-mounted.
 
@@ -127,9 +127,7 @@ sudo flashrom -p ch341a_spi -r firmware_dump2.bin
 sha256sum firmware_dump.bin firmware_dump2.bin
 ```
 
-Matching checksums means you have a good dump. Different checksums? Press down harder, wiggle it, maybe even reseat it completely. It's annoying but necessary - a corrupted dump is worthless.
-
-Once you have matching dumps, back them up. If you end up bricking the system later by writing bad firmware or experimenting with modifications, it's good practice to have a backup on standby.
+Matching checksums means we have a good dump, if not then try playing around with the clip or even reseating it completely. This is an integral part of the process to make sure we don't get a corrupted dump that is practically worthless. Once we confirm the validity of the firmware we just dumped, backing it up is also crucial in case we end up bricking our board later on by writing bad firmware or doing some risky experimentation.
 
 ## From Hardware Dump to Usable Data
 
@@ -176,7 +174,7 @@ Now you see the **actual EFI variables** stored inside - this is what the firmwa
   - `CustomMode` - Secure Boot custom mode setting
   - `VendorKeysNv` - Vendor key status
   - `FirmwareFeatures` / `FirmwareFeaturesMask` - Platform capabilities
-  - `EfiIScsiInitiatorNameProtocolGuid` - iSCSI boot configuration (multiple attempts)
+  - `EfiIScsiInitiatorNameProtocolGuid` - iSCSI boot configuration
   - `IScsiConfigGuid` - iSCSI settings
   - `Boot0000`, `Key0000`, `Key0001` - Boot and key configuration
   - `PlatformLang`, `Lang` - Language settings
