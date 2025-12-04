@@ -835,10 +835,16 @@ body {
   text-align: left;
 }
 #header-post #actions ul {
-  display: block;
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 15px;
+}
+#header-post #actions li {
+  margin-right: 0;
 }
 #header-post #actions .info {
-  display: block;
+  display: inline-block;
+  margin-left: 1rem;
   font-style: italic;
 }
 #header-post #share {
@@ -856,10 +862,14 @@ body {
   clear: both;
   overflow: auto;
   margin-top: 1rem;
-  padding-left: 2rem;
+  padding-right: 2rem;
   max-width: 20em;
   max-height: calc(95vh - 7rem);
   text-align: left;
+  direction: rtl;
+}
+#header-post #toc > * {
+  direction: ltr;
 }
 #header-post #toc a:hover {
   color: #d480aa;
@@ -923,13 +933,18 @@ body {
     width: auto;
   }
   #header-post #actions ul {
-    display: inline-block;
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 15px;
     float: left;
   }
+  #header-post #actions li {
+    margin-right: 0;
+  }
   #header-post #actions .info {
-    display: inline;
+    display: inline-block;
     float: left;
-    margin-right: 2rem;
+    margin-left: 1rem;
     font-style: italic;
   }
 }
