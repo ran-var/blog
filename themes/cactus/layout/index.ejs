@@ -164,6 +164,27 @@
 </section>
 <% } %>
 
+<% if (theme.publications && theme.publications.length) { %>
+<section id="publications">
+  <span class="h1">Publications</span>
+
+  <ul class="post-list">
+    <% theme.publications.forEach(function(pub){ %>
+      <li class="post-item">
+        <div class="post-title-wrapper">
+          <a href="<%- pub.link %>" target="_blank" rel="noopener"><%= pub.title %></a>
+        </div>
+        <div class="post-meta-wrapper">
+          <div class="meta">
+            <time><%= pub.date %></time>
+          </div>
+        </div>
+      </li>
+    <% }); %>
+  </ul>
+</section>
+<% } %>
+
 <% if (site.data.projects) { %>
 <section id="projects">
   <span class="h1"><a href="<%- url_for(theme.projects_url) %>"><%= __('index.projects') %></a></span>

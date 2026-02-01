@@ -8,6 +8,11 @@ repositories:
     link: https://github.com/ran-var/MalGen
     description: Menu-based malware generator with customizable attributes and features
 
+publications:
+  - title: "Digital Whisper: Issue 182"
+    link: https://digitalwhisper.co.il/files/Zines/0xB6/DW182-2-UEFI-Hacking.pdf
+    date: 31-01-2026
+
 # Set the page direction to RTL or LTR. default is LTR. (if you set it 'rtl', the 'vazir' font will be loaded.)
 direction: ltr
 # Configure the navigation menu.
