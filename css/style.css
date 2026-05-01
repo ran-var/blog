@@ -648,10 +648,9 @@ body {
   margin-right: 10px;
   margin-left: -15px;
   width: 125px;
-  height: 125px;
+  height: auto;
   background-size: 125px 125px;
   background-repeat: no-repeat;
-  object-fit: contain;
   float: none;
   filter: grayscale(100%);
   -webkit-filter: grayscale(100%);
