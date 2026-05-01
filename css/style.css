@@ -651,6 +651,7 @@ body {
   height: 125px;
   background-size: 125px 125px;
   background-repeat: no-repeat;
+  object-fit: contain;
   float: none;
   filter: grayscale(100%);
   -webkit-filter: grayscale(100%);
