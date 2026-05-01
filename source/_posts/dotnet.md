@@ -56,12 +56,12 @@ ParseCompilationUnit()
 	-> ParseMemberDeclaration()
 		-> ParseStatement()
 			-> ParseLocalDeclarationStatement()
-				-> ParseType()                          // consumes "string"
+				-> ParseType()  // consumes "string"
 				-> ParseVariableDeclarator()
-					-> ParseIdentifierToken()             // consumes "name"  
+					-> ParseIdentifierToken()  // consumes "name"  
 					-> ParseEqualsValueClause()
-				-> ParseExpression()                // consumes "John"
-			-> ParseSemicolon()                     // consumes ";"
+				-> ParseExpression()  // consumes "John"
+			-> ParseSemicolon()  // consumes ";"
 ```
 Each method knows what tokens it expects. `ParseEqualsValueClause()` expects an `=` token followed by an expression. `ParseLocalDeclarationStatement()` expects a type, then a variable name followed by a semicolon.
 
