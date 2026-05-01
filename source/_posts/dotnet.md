@@ -5,7 +5,7 @@ date: 2026-05-01
 
 New role, new tech stack, and this time I wanted to develop a deeper understanding of how C# is compiled and how the .NET runtime executes it. 
 
-### The In-Between
+## The In-Between
 Unlike languages like C or Rust that compile directly to native machine code, C# is compiled into a Common Intermediate Language(CIL) which is a platform-agnostic bytecode format. At runtime, the Common Language Runtime(CLR) translates CIL into native machine code, primarily through just-in-time (JIT) compilation. 
 
 The intermediate language is part of .NET's core design principles, which was built as a multi-language, multi-platform runtime. C#, F#, and VB.NET all compile down to the same CIL bytecode and the CLR handles translating it to native code for whatever CPU architecture it's running on, whether that's x86/64 or ARM.
@@ -17,7 +17,7 @@ Nowadays Roslyn is the primary C# (and VB.NET) compiler, it takes in `.cs` files
 
 Roslyn was open sourced in 2014 and became the default compiler in Visual Studio 2015, fully replacing `csc.exe` and is written entirely in C# meaning the compiler compiles itself, which is called self-hosting. When you run `dotnet build`, MSBuild reads your `.csproj`, resolves dependencies, and delegates the actual compilation to Roslyn, which takes your source code through a series of phases in sort of a pipeline: lexing, parsing, semantic analysis, lowering, and IL emission.
 
-### Breaking Down the Source
+## Breaking Down the Source
 The first thing Roslyn does with our source code is lexing, also called tokenization. The lexer goes over raw source text characters and breaks it into tokens. Under the hood, it doesn't read directly from a string instead it uses `SlidingTextWindow`, an abstraction that sits over the source text which tracks a position cursor and lets the lexer peek ahead at upcoming characters without actually consuming them.
 
 Let's take a simple line a variable declaration:
@@ -43,7 +43,7 @@ Finally `;`, single character, no ambiguity, `SemicolonToken`. The cursor reache
 
 The core concept here is that the lexer always consumes as many characters as possible that still form a valid token before stopping. Hit an unrecognizable character? `BadToken`, advance one position, move on. The lexer always makes progress, always produces output. Whether any of it makes sense as a program, that's the parser's headache later on.
 
-### Translating the Stream
+## Translating the Stream
 Now that we've grasped a basic understanding how Roslyn treats the text inside our source code, those tokens need to be parsed into something usable.
 
 The parser takes the flat token stream from the lexer and figures out how the tokens relate to each other hierarchically. It reads tokens left to right, one at a time, and builds a syntax tree where each node represents a grammatical construct in C#.
@@ -98,7 +98,7 @@ The green tree also squeezes out further efficiency in how individual nodes stor
 
 The practical payoff is that every keystroke technically produces a new syntax tree, but almost none of it is new. Roslyn only allocates fresh green nodes for what changed and their ancestors up to the root. Everything else is the same objects reused from before, the red layer gets thrown away and rebuilt cheaply since it's just wrappers doing position arithmetic. This is partly why IDE tooling remains responsive at scale.
 
-### Binding
+## Binding
 The syntax tree knows structure but not meaning, that's why the parser produced a valid tree for `FakeType abc = foo.bar();` without knowing whether `FakeType` exists or whether `foo` is in scope.
 
 Binding takes the syntax tree and resolves every name, type reference, and expression against the symbol table, which is Roslyn's in-memory model of every type, method, field, property, and local variable the compiler knows about, including everything pulled in from referenced assemblies. The output is a bound tree, a new representation where every node carries full type and symbol information alongside the original syntax.
@@ -144,7 +144,7 @@ The analyzer sees taint reach a SQL sink and fires, the symbol graph made the pa
 
 This is also why renaming a dangerous method doesn't fool a semantic analyzer. It knows the symbol, not the string name. `ExecuteReader` renamed to `RunQuery` in a wrapper is still resolved to the same underlying method symbol if the wrapper is transparent, or flagged as a new sink if you've annotated it.
 
-### Lowering
+## Lowering
 After binding, Roslyn runs a phase called lowering. The bound tree still reflects the C# you wrote, and a lot of C# syntax is high-level shorthand for more complex patterns that IL can't directly express. Lowering rewrites the tree into simpler, more explicit constructs before anything gets emitted.
 
 `foreach` over an `IEnumerable<T>` becomes a `while` loop with an explicit enumerator, `GetEnumerator()` call, `MoveNext()` check, and `Current` access. `using` blocks become `try/finally` with an explicit `Dispose()` call. `??=` becomes a null check plus assignment. String interpolation becomes a `string.Format` call or a `StringBuilder` sequence depending on complexity. Pattern matching gets flattened into nested conditionals and type checks.
@@ -221,6 +221,7 @@ From an attacker's perspective, .NET processes are a high-value target for memor
 On a compromised host with local access, collecting a dump from a running .NET web process takes one command and about ten seconds. No elevated privileges needed if you own the process. The analysis we just walked through, finding the state machine, reading the field, printing the string, is repeatable on any .NET async application with little to no prior knowledge of the codebase.
 
 For defenders, mitigation options are genuinely limited. You can't control GC timin, what you can control is scope. Don't hold sensitive values across await boundaries if you can avoid it and if you really must, clear them explicitly before awaiting since the GC may not zero the memory immediately. Treat any mechanism that can produce a heap dump, crash reporters, diagnostic tools, monitoring agents, as a potential credential exfiltration path .
+
 ### Closure Classes
 When a lambda references a variable from the surrounding scope, the compiler runs into a problem which is that the lambda can be called anywhere potentially long after the method that declared the variable has returned. The stack frame is gone and the variable needs to survive.
 
@@ -233,7 +234,8 @@ Func<bool> validate = () => Authenticate(password);
 After lowering, `password` is no longer a stack local, it is a field on a compiler generated class named something like `<>c__DisplayClass3_0`. The delegate `validate` holds a reference to that class instance, and as long as anything holds a reference to `validate` the class stays alive, and so does `password`.
 
 The lifetime is harder to reason about than the async case. With an async method you at least know the state machine lives for the duration of the request but in a closure, the lifetime depends entirely on whoever holds the delegate. Pass it to another component, register it as an event handler, cache it, hand it to a background task, and the captured `password` travels with it. Nulling your local reference does nothing. From a heap dump perspective this is identical to what we demonstrated with async. `dumpheap` finds the closure class, `dumpobj` prints its fields, and the captured value is sitting there in plaintext. 
-### IL Emission
+
+## IL Emission
 Once lowering is done Roslyn takes the fully transformed bound tree and emits CIL bytecode into an assembly, outputting a `.dll` or an `.exe`. Inside there are two things that matter, the CIL section containing the bytecode for every method, and the metadata section containing a complete description of every type, method signature, field, property, and attribute in the assembly.
 
 CIL is a stack-based instruction set, meaning there are no registers like in x86. Instead every operation pushes values onto an evaluation stack and pops them off. To add two numbers you push both onto the stack and call `add`, the runtime pops them, adds them, and pushes the result back.
@@ -323,7 +325,7 @@ Obfuscators like Dotfuscator and ConfuserEx exist to fight both of these threats
 
 The key takeaway from this is secrets don't belong in .NET assemblies, and security logic that can be patched out in five minutes isn't security. If a threat model includes an attacker who has access to your binary, managed code gives them a significant advantage that native code doesn't.
 
-### The Runtime
+## The Runtime
 The assembly on disk is CIL, not native code as a result nothing in it can execute directly on the CPU. When the process starts, the CLR takes over.
 
 For an `.exe` the PE file contains a small native stub, a few bytes of real machine code whose only job is to load the CLR into the process. The CLR reads the assembly's metadata, sets up the type system, locates the entry point method, and hands off execution. From that point on, methods run as CIL until something actually needs to execute them.
@@ -356,7 +358,7 @@ NativeAOT also changes what features are available, arbitrary reflection, dynami
 
 For applications where binary confidentiality or IP protection matters, NativeAOT shifts the threat model closer to what native compiled language ecosystems deal with. For applications where the CLR's safety guarantees, rich reflection, and deployment flexibility matter more, the standard JIT path makes more sense.
 
-### Where Does This Leave Us?
+## Where Does This Leave Us?
 Most developers interact with the compiler as a black box, code goes in and a binary comes out,  everything in between is someone or something else's problem.
 
 The pipeline isn't just a technical curiosity, it's the reason your tooling works, the reason certain bugs exist, and the reason some attack classes are possible against .NET that aren't possible against native code, and vice versa. Roslyn's public API exists because the compiler exposes its internals, and that's the same reason IDE features, refactoring tools, and security analyzers can all work off the same semantic model.
