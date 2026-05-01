@@ -1,6 +1,6 @@
 ---
 title: "C# From Text to Machine Code"
-date: 2025-05-01
+date: 2026-05-01
 ---
 
 New role, new tech stack, and this time I wanted to develop a deeper understanding of how C# is compiled and how the .NET runtime executes it. 
