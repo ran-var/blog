@@ -104,7 +104,7 @@ logo:
   enabled: true
   width: 125
   height: 125
-  url: /images/logo.png
+  url: /images/logo.png?v=2
   gravatar: false
   grayout: true
 
