@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    
+    <meta name="description" content="New role, new tech stack, and this time I wanted to develop a deeper understanding of how C# is compiled and how the .NET runtime executes it.  The In-BetweenUnlike languages like C or Rust that compi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C# From Text to Machine Code">
+<meta property="og:url" content="https://ran-var.github.io/blog/dotnet/">
+<meta property="og:site_name" content="Ran Varshaver">
+<meta property="og:description" content="New role, new tech stack, and this time I wanted to develop a deeper understanding of how C# is compiled and how the .NET runtime executes it.  The In-BetweenUnlike languages like C or Rust that compi">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ran-var.github.io/blog/images/syntaxtree.png">
+<meta property="og:image" content="https://ran-var.github.io/blog/images/faketree.png">
+<meta property="og:image" content="https://ran-var.github.io/blog/images/greentree.png">
+<meta property="og:image" content="https://ran-var.github.io/blog/images/sourcetosink.png">
+<meta property="og:image" content="https://ran-var.github.io/blog/images/dnspy2.png">
+<meta property="og:image" content="https://ran-var.github.io/blog/images/dnspy1.png">
+<meta property="article:published_time" content="2025-05-01T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-05-01T20:09:35.763Z">
+<meta property="article:author" content="Ran Varshaver">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ran-var.github.io/blog/images/syntaxtree.png">
+    
+    
+    
+    
+      
+        <link rel="shortcut icon" href="/images/favicon.ico">
+      
+      
+        <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+      
+      
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+      
+    
+
+    <title>C# From Text to Machine Code</title>
+
+    <!-- async scripts -->
+    
+    
+
+    
+<link rel="stylesheet" href="/blog/css/style.css">
+
+
+    
+
+    
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Previous post" href="/blog/xml-overflow/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+    </span>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#The-In-Between"><span class="toc-number">1.</span> <span class="toc-text">The In-Between</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#What%E2%80%99s-Roslyn"><span class="toc-number">2.</span> <span class="toc-text">What’s Roslyn?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Breaking-Down-the-Source"><span class="toc-number">3.</span> <span class="toc-text">Breaking Down the Source</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Translating-the-Stream"><span class="toc-number">4.</span> <span class="toc-text">Translating the Stream</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Still-No-Meaning"><span class="toc-number">5.</span> <span class="toc-text">Still No Meaning</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Immutability-and-structural-sharing"><span class="toc-number">6.</span> <span class="toc-text">Immutability and structural sharing</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#The-Red-Green-Tree"><span class="toc-number">7.</span> <span class="toc-text">The Red-Green Tree</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Binding"><span class="toc-number">8.</span> <span class="toc-text">Binding</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Where-Security-Tools-Live"><span class="toc-number">9.</span> <span class="toc-text">Where Security Tools Live</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lowering"><span class="toc-number">10.</span> <span class="toc-text">Lowering</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Async-State-Machines"><span class="toc-number">11.</span> <span class="toc-text">Async State Machines</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Closure-Classes"><span class="toc-number">12.</span> <span class="toc-text">Closure Classes</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IL-Emission"><span class="toc-number">13.</span> <span class="toc-text">IL Emission</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#The-Metadata-Problem"><span class="toc-number">14.</span> <span class="toc-text">The Metadata Problem</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#The-Runtime"><span class="toc-number">15.</span> <span class="toc-text">The Runtime</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#What-the-CLR-Enforces"><span class="toc-number">16.</span> <span class="toc-text">What the CLR Enforces</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NativeAOT"><span class="toc-number">17.</span> <span class="toc-text">NativeAOT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Where-Does-This-Leave-Us"><span class="toc-number">18.</span> <span class="toc-text">Where Does This Leave Us?</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <a href="/blog/" class="back-link">← Back</a>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        C# From Text to Machine Code
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Ran Varshaver</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-05-01T00:00:00.000Z" class="dt-published" itemprop="datePublished">01-05-2025</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>New role, new tech stack, and this time I wanted to develop a deeper understanding of how C# is compiled and how the .NET runtime executes it. </p>
+<h3 id="The-In-Between"><a href="#The-In-Between" class="headerlink" title="The In-Between"></a>The In-Between</h3><p>Unlike languages like C or Rust that compile directly to native machine code, C# is compiled into a Common Intermediate Language(CIL) which is a platform-agnostic bytecode format. At runtime, the Common Language Runtime(CLR) translates CIL into native machine code, primarily through just-in-time (JIT) compilation. </p>
+<p>The intermediate language is part of .NET’s core design principles, which was built as a multi-language, multi-platform runtime. C#, F#, and VB.NET all compile down to the same CIL bytecode and the CLR handles translating it to native code for whatever CPU architecture it’s running on, whether that’s x86&#x2F;64 or ARM.</p>
+<h3 id="What’s-Roslyn"><a href="#What’s-Roslyn" class="headerlink" title="What’s Roslyn?"></a>What’s Roslyn?</h3><p>The original C# compiler was <code>csc.exe</code>, written in C++ and shipped with the .NET Framework starting in 2002. Source code went in, a compiled assembly came out, and nothing in between was accessible. There was no way for external tools to tap into what the compiler already knew about your code.</p>
+<p>Nowadays Roslyn is the primary C# (and VB.NET) compiler, it takes in <code>.cs</code> files and produces assemblies - <code>.dll</code> or <code>.exe</code> files that contain CIL bytecode along with metadata about types, methods, and dependencies. Unlike <code>csc.exe</code> which had been used up until that point, Roslyn is a compiler that exposes every intermediate stage of compilation as a public API, the token stream, the syntax tree, the semantic model, the symbol table, all programmatically accessible. This is what powers IDE features like IntelliSense and refactoring, and it’s what security tools like CodeQL and Roslyn analyzers hook into to understand your code at a deep semantic level.</p>
+<p>Roslyn was open sourced in 2014 and became the default compiler in Visual Studio 2015, fully replacing <code>csc.exe</code> and is written entirely in C# meaning the compiler compiles itself, which is called self-hosting. When you run <code>dotnet build</code>, MSBuild reads your <code>.csproj</code>, resolves dependencies, and delegates the actual compilation to Roslyn, which takes your source code through a series of phases in sort of a pipeline: lexing, parsing, semantic analysis, lowering, and IL emission.</p>
+<h3 id="Breaking-Down-the-Source"><a href="#Breaking-Down-the-Source" class="headerlink" title="Breaking Down the Source"></a>Breaking Down the Source</h3><p>The first thing Roslyn does with our source code is lexing, also called tokenization. The lexer goes over raw source text characters and breaks it into tokens. Under the hood, it doesn’t read directly from a string instead it uses <code>SlidingTextWindow</code>, an abstraction that sits over the source text which tracks a position cursor and lets the lexer peek ahead at upcoming characters without actually consuming them.</p>
+<p>Let’s take a simple line a variable declaration:</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> name = <span class="string">&quot;John&quot;</span>;</span><br></pre></td></tr></table></figure>
+<p>At each position, the lexer looks at the current character to figure out what kind of token it’s dealing with. For the vast majority of token types (identifiers, keywords, single-character operators, number literals) Roslyn doesn’t even use the full lexer. It routes them through the QuickScanner, an optimized state machine with minimal branching and allocation. Only the weird stuff like interpolated strings, preprocessor directives, and unicode escapes falls through to the full lexing logic.</p>
+<p>Quick note, whitespace, comments, newlines, preprocessor directives, anything in the source that has no effect on what the program actually does is called <strong>trivia</strong>. Most compilers toss it during lexing but Roslyn keeps all of it, attaching each piece to adjacent tokens as leading or trailing trivia. This is what lets IDE refactoring tools rename a variable or insert a code fix without destroying your formatting.</p>
+<p>Walking through <code>string name = &quot;John&quot;;</code> the lexer sees <code>s</code>, a letter, so it enters the identifier&#x2F;keyword scanning path. It advances: <code>t</code>, <code>r</code>, <code>i</code>, <code>n</code>, <code>g</code>, all letters. Next character is a space, not a letter, digit, or underscore, so the token boundary is hit. Now it needs to figure out if what it just consumed is a keyword or an identifier. It runs <code>string</code> through a hash based lookup against the reserved keyword table. <code>string</code> matches, so it emits a <code>StringKeyword</code> token.</p>
+<p>Next up, <code>n</code> follows the same scanning path. Consumes <code>n</code>, <code>a</code>, <code>m</code>, <code>e</code>, hits a space. Keyword lookup comes back empty for <code>name</code>, so it’s an <code>IdentifierToken</code>. The lexer has absolutely no idea that this is a variable name, could be a class, a method, a namespace.</p>
+<p>Then <code>=</code>, operators use lookahead, the lexer peeks at the next character to check if it’s part of something else.<br>Next char is <code>=</code>? That’s an equality operator <code>==</code>.<br>Next char is <code>&gt;</code>? That’s a lambda function <code>=&gt;</code>.<br>Here it’s a space, so just an <code>EqualsToken</code>. Same peek-ahead logic handles every compound operator in C#: <code>!=</code>, <code>&amp;&amp;</code>, <code>||</code>, <code>??</code>, <code>??=</code>, <code>&gt;&gt;=</code>.</p>
+<p>Up next is <code>&quot;</code> which slightly changes the how its being looked at. The lexer switches into string literal mode, where instead of stopping at spaces or operators, it eats everything until a closing <code>&quot;</code> and along the way it also handles escape sequences (<code>\n</code>, <code>\t</code>, <code>\\</code>, <code>\&quot;</code>). Different string types get different treatment. Verbatim strings (<code>@&quot;...&quot;</code>) ignore escapes and only stop at a doubled <code>&quot;&quot;</code>, raw strings (<code>&quot;&quot;&quot;...&quot;&quot;&quot;</code>) count opening quotes and match the same number to close, and interpolated strings (<code>$&quot;...{expr}...&quot;</code>) get properly recursive since the expression inside the braces can itself contain strings. Here it’s simple: <code>J</code>, <code>o</code>, <code>h</code>, <code>n</code>, closing <code>&quot;</code> so we emit a <code>StringLiteralToken</code>.</p>
+<p>Finally <code>;</code>, single character, no ambiguity, <code>SemicolonToken</code>. The cursor reaches the end of the source and the lexer emits an <code>EndOfFileToken</code> to signal the stream is done.</p>
+<p>The core concept here is that the lexer always consumes as many characters as possible that still form a valid token before stopping. Hit an unrecognizable character? <code>BadToken</code>, advance one position, move on. The lexer always makes progress, always produces output. Whether any of it makes sense as a program, that’s the parser’s headache later on.</p>
+<h3 id="Translating-the-Stream"><a href="#Translating-the-Stream" class="headerlink" title="Translating the Stream"></a>Translating the Stream</h3><p>Now that we’ve grasped a basic understanding how Roslyn treats the text inside our source code, those tokens need to be parsed into something usable.</p>
+<p>The parser takes the flat token stream from the lexer and figures out how the tokens relate to each other hierarchically. It reads tokens left to right, one at a time, and builds a syntax tree where each node represents a grammatical construct in C#.</p>
+<p>The parser is a <strong>recursive descent parser</strong>, meaning it has a method for each grammar rule in the C# language. There’s a method for parsing a class declaration, a method for parsing an if statement, a method for parsing an expression, a method for parsing an argument list, and so on. These methods call each other recursively based on what they encounter.</p>
+<p>When the parser sees your tokens from <code>string name = &quot;John&quot;;</code>, the call chain looks roughly like this:</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">ParseCompilationUnit()</span><br><span class="line">	-&gt; ParseMemberDeclaration()</span><br><span class="line">		-&gt; ParseStatement()</span><br><span class="line">			-&gt; ParseLocalDeclarationStatement()</span><br><span class="line">				-&gt; ParseType()                          <span class="comment">// consumes &quot;string&quot;</span></span><br><span class="line">				-&gt; ParseVariableDeclarator()</span><br><span class="line">					-&gt; ParseIdentifierToken()             <span class="comment">// consumes &quot;name&quot;  </span></span><br><span class="line">					-&gt; ParseEqualsValueClause()</span><br><span class="line">				-&gt; ParseExpression()                <span class="comment">// consumes &quot;John&quot;</span></span><br><span class="line">			-&gt; ParseSemicolon()                     <span class="comment">// consumes &quot;;&quot;</span></span><br></pre></td></tr></table></figure>
+<p>Each method knows what tokens it expects. <code>ParseEqualsValueClause()</code> expects an <code>=</code> token followed by an expression. <code>ParseLocalDeclarationStatement()</code> expects a type, then a variable name followed by a semicolon.</p>
+<p>The resulting syntax tree for <code>string name = &quot;John&quot;;</code> looks like:<br><img src="/blog/images/syntaxtree.png" alt="syntax tree"><br>Every node is a strongly-typed C# object. <code>LocalDeclarationStatement</code> is <code>LocalDeclarationStatementSyntax</code>. <code>VariableDeclaration</code> is <code>VariableDeclarationSyntax</code>. These are all real types in the <code>Microsoft.CodeAnalysis.CSharp.Syntax</code> namespace that you can inspect, query, and traverse through Roslyn’s public API.</p>
+<h3 id="Still-No-Meaning"><a href="#Still-No-Meaning" class="headerlink" title="Still No Meaning"></a>Still No Meaning</h3><p>The parser knows structure but not meaning, it knows there’s a variable declaration with type <code>string</code>, name <code>name</code>, and initializer <code>&quot;John&quot;</code>. <strong>But it doesn’t know:</strong></p>
+<ul>
+<li>Whether <code>string</code> is actually a valid type</li>
+<li>Whether <code>name</code> is already declared in this scope</li>
+<li>Whether <code>&quot;John&quot;</code> is assignable to &#96;string</li>
+<li>Whether this statement is inside a method body or floating at the top level of a namespace</li>
+</ul>
+<p>You could feed the parser <code>FakeType abc = foo.bar();</code> and it would produce a valid syntax tree. Whether <code>FakeType</code> exists, whether <code>foo</code> is in scope, whether <code>bar()</code> returns something compatible, all of that is the binder’s job in the next phase.<br><img src="/blog/images/faketree.png" alt="fake tree"></p>
+<p>The parser only rejects things that are structurally don’t make sense. <code>string = &quot;John&quot; name;</code> would cause a parse error because the tokens don’t match any valid C# grammar rule.</p>
+<h3 id="Immutability-and-structural-sharing"><a href="#Immutability-and-structural-sharing" class="headerlink" title="Immutability and structural sharing"></a>Immutability and structural sharing</h3><p>Roslyn syntax trees are completely immutable. Once created, no node ever changes and if you want to modify a tree, you create a new one, but Roslyn doesn’t copy over the whole thing.<br>It uses structural sharing, reusing every node that didn’t change and only allocating new nodes for the changed parts and their ancestors up to the root. </p>
+<h3 id="The-Red-Green-Tree"><a href="#The-Red-Green-Tree" class="headerlink" title="The Red-Green Tree"></a>The Red-Green Tree</h3><p>Before we move past the syntax tree, there’s one implementation detail worth understanding because it explains how Roslyn can be both immutable and practical at the same time.</p>
+<p>The naming sounds like two separate trees for different purposes, but it’s really one logical tree with two layers, the green tree is the data and the red tree is the position. Every green node knows what it is (a keyword, an identifier, an operator) and how wide it is in characters, but has no idea where in the file it lives. That’s what makes sharing possible. If <code>string</code> appears 50 times, the width is always 6, the kind is always <code>StringKeyword</code>, so it’s literally the same object reused everywhere.</p>
+<p>The red layer is position. When you ask “where is this node in the file?” the red tree is what points to it. Red nodes are created on demand as you navigate, and thrown away when the tree changes, because a rename shifts every position downstream.</p>
+<p>The green tree also squeezes out further efficiency in how individual nodes store their children. Rather than every node holding a generic array, Roslyn picks a storage strategy based on child count. A node with one child just returns itself. Two or three children get stored as inline fields, no array allocation at all. Four to nine use a small array. Ten or more get an array with precomputed offsets for fast child lookup:<br><img src="/blog/images/greentree.png" alt="green tree"></p>
+<p>The practical payoff is that every keystroke technically produces a new syntax tree, but almost none of it is new. Roslyn only allocates fresh green nodes for what changed and their ancestors up to the root. Everything else is the same objects reused from before, the red layer gets thrown away and rebuilt cheaply since it’s just wrappers doing position arithmetic. This is partly why IDE tooling remains responsive at scale.</p>
+<h3 id="Binding"><a href="#Binding" class="headerlink" title="Binding"></a>Binding</h3><p>The syntax tree knows structure but not meaning, that’s why the parser produced a valid tree for <code>FakeType abc = foo.bar();</code> without knowing whether <code>FakeType</code> exists or whether <code>foo</code> is in scope.</p>
+<p>Binding takes the syntax tree and resolves every name, type reference, and expression against the symbol table, which is Roslyn’s in-memory model of every type, method, field, property, and local variable the compiler knows about, including everything pulled in from referenced assemblies. The output is a bound tree, a new representation where every node carries full type and symbol information alongside the original syntax.</p>
+<p>For <code>string name = &quot;John&quot;;</code> the binder does a few things. It looks up <code>string</code> and resolves it to <code>System.String</code> in <code>mscorlib</code>. It checks whether <code>name</code> is already declared in the current scope. It looks at <code>&quot;John&quot;</code> and confirms it has type <code>System.String</code>. Then it checks assignability if <code>System.String</code> assignable to <code>System.String</code>.</p>
+<p>Now try something slightly different:</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">object</span> name = <span class="string">&quot;John&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>The binder sees a string literal being assigned to <code>System.Object</code>. It checks is <code>System.String</code> assignable to <code>System.Object</code>? Yes, because <code>String</code> inherits from <code>Object</code> and it emits an implicit reference conversion and moves on.</p>
+<p>That silent behavior matters more when the types are less obviously compatible. C# has an implicit conversion table: numeric widening, user-defined implicit operators, nullable value type lifting.</p>
+<p>If you validate a value and then assign it to a type that triggers an implicit conversion, you validated the pre-conversion value and you’re operating on the post-conversion one. The validation and the actual value the code uses are no longer looking at the same thing. With user-defined <code>implicit operator</code> conversions this gets worse, since the conversion logic is somewhere else entirely and nothing at the call site says it’s happening.</p>
+<p>The binder also handles overload resolution, when you write <code>Console.WriteLine(name)</code>, there are 18 overloads of <code>WriteLine</code>. The binder eliminates candidates that don’t match the argument types, applies various rules, and picks one silently. This is normally fine, but it gets interesting when a library has overloads with meaningfully different behavior and the compiler picks between them based on a type that also isn’t obvious at the call site.</p>
+<h3 id="Where-Security-Tools-Live"><a href="#Where-Security-Tools-Live" class="headerlink" title="Where Security Tools Live"></a>Where Security Tools Live</h3><p>This is the phase where tools like CodeQL and other Roslyn analyzers hook into, and it’s worth mentioning what that actually means.</p>
+<p>Roslyn analyzers register as <code>DiagnosticAnalyzer</code> implementations and get callbacks during compilation. When binding produces a <code>SemanticModel</code>, it’s exposed through the analyzer API. The analyzer can call <code>semanticModel.GetSymbolInfo(node)</code> on any syntax node and get back the resolved symbol, the actual <code>IMethodSymbol</code>, <code>ITypeSymbol</code>, <code>ILocalSymbol</code>. You’re not pattern matching on strings, you’re practically querying the resolved symbol table the compiler itself built.</p>
+<p>That’s the difference between a regex based scanner and a semantic one, a regex scanner looking for SQL injection might look for string concatenation near the word “query”. A Roslyn analyzer can go deeper and ask: does this expression flow from a parameter with no sanitization, through any call path, into a method sink whose symbol is <code>SqlCommand.ExecuteReader</code>?</p>
+<p>Taint tracking works at this level because binding had already performed the hard work, every variable reference is resolved to a declaration and every method call is resolved to a concrete symbol. The data flow engine follows a value from source to sink because the symbol graph gives it a complete flow chart from one point to another.</p>
+<p><img src="/blog/images/sourcetosink.png" alt="source to sink"></p>
+<p>For <code>string name = &quot;John&quot;;</code>, a taint analyzer marks <code>name</code> as untainted since the source is a literal. Change it to:</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> name = Request.QueryString[<span class="string">&quot;name&quot;</span>];</span><br></pre></td></tr></table></figure>
+
+<p>Now the binding phase resolves <code>Request.QueryString</code> to <code>System.Web.HttpRequest.QueryString</code>, a known taint source.</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> SqlCommand(<span class="string">&quot;SELECT * FROM users WHERE name = &#x27;&quot;</span> + name + <span class="string">&quot;&#x27;&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>The analyzer sees taint reach a SQL sink and fires, the symbol graph made the path unambiguous.</p>
+<p>This is also why renaming a dangerous method doesn’t fool a semantic analyzer. It knows the symbol, not the string name. <code>ExecuteReader</code> renamed to <code>RunQuery</code> in a wrapper is still resolved to the same underlying method symbol if the wrapper is transparent, or flagged as a new sink if you’ve annotated it.</p>
+<h3 id="Lowering"><a href="#Lowering" class="headerlink" title="Lowering"></a>Lowering</h3><p>After binding, Roslyn runs a phase called lowering. The bound tree still reflects the C# you wrote, and a lot of C# syntax is high-level shorthand for more complex patterns that IL can’t directly express. Lowering rewrites the tree into simpler, more explicit constructs before anything gets emitted.</p>
+<p><code>foreach</code> over an <code>IEnumerable&lt;T&gt;</code> becomes a <code>while</code> loop with an explicit enumerator, <code>GetEnumerator()</code> call, <code>MoveNext()</code> check, and <code>Current</code> access. <code>using</code> blocks become <code>try/finally</code> with an explicit <code>Dispose()</code> call. <code>??=</code> becomes a null check plus assignment. String interpolation becomes a <code>string.Format</code> call or a <code>StringBuilder</code> sequence depending on complexity. Pattern matching gets flattened into nested conditionals and type checks.</p>
+<h3 id="Async-State-Machines"><a href="#Async-State-Machines" class="headerlink" title="Async State Machines"></a>Async State Machines</h3><p>When you write an <code>async</code> method, lowering transforms it into a state machine. Roslyn generates a struct that implements <code>IAsyncStateMachine</code>, and every local variable your method needs across an <code>await</code> point becomes a field on that struct.</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">app.MapGet(<span class="string">&quot;/login&quot;</span>, <span class="keyword">async</span> (HttpContext ctx) =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">string</span> password = ctx.Request.Headers[<span class="string">&quot;Authorization&quot;</span>].ToString();</span><br><span class="line">    <span class="keyword">await</span> Task.Delay(<span class="number">30000</span>); <span class="comment">//suspended for sake of demonstration</span></span><br><span class="line">    Console.WriteLine(password);</span><br><span class="line">    <span class="keyword">return</span> Results.Ok(<span class="keyword">new</span> &#123; message = <span class="string">&quot;done&quot;</span> &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>Because <code>password</code> is used after the <code>await</code> it’s no longer a stack local that disappears when the method suspends. It’s a heap-allocated field on the state machine struct that lives until the entire async operation completes and the object is garbage collected.</p>
+<p>We’ll dig through this with <code>dotnet-dump</code> which ships with the .NET SDK. Run the app, hit the endpoint, and capture the request while it’s suspended at the <code>await</code> </p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dotnet<span class="literal">-dump</span> <span class="built_in">ps</span></span><br><span class="line"><span class="number">11080</span> Test1 C:\Users\Ran\Test1\bin\Release\net8.<span class="number">0</span>\Test1.exe <span class="string">&quot;C:\Users\Ran\Test1\bin\Release\net8.0\Test1.exe&quot;</span></span><br><span class="line">dotnet<span class="literal">-dump</span> collect <span class="literal">-p</span> <span class="number">11080</span></span><br><span class="line">dotnet<span class="literal">-dump</span> analyze C:\Users\Ran\Test1\dump_20260501_001307.dmp</span><br></pre></td></tr></table></figure>
+
+<p>Inside the analyze session, find the state machine by walking down from the ASP.NET request pipeline:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">&gt; dumpheap -type ExecuteTaskResult</span><br><span class="line">         Address               MT           Size</span><br><span class="line">    013a260231d8     7ffcb86db9a0            120</span><br><span class="line"></span><br><span class="line">Statistics:</span><br><span class="line">          MT Count TotalSize Class Name</span><br><span class="line">7ffcb86db9a0     1       120 System.Runtime.CompilerServices.AsyncTaskMethodBuilder&lt;System.Threading.Tasks.VoidTaskResult&gt;+AsyncStateMachineBox&lt;Microsoft.AspNetCore.Http.RequestDelegateFactory+&lt;ExecuteTaskResult&gt;d__143&lt;Microsoft.AspNetCore.Http.IResult&gt;&gt;</span><br><span class="line">Total 1 objects, 120 bytes</span><br><span class="line"></span><br><span class="line">&gt; dumpobj 013a260231d8</span><br><span class="line">...</span><br><span class="line">00007ffcb86401f8  4001412       40 ...&lt;&lt;Main&gt;$&gt;b__0_0&gt;d  1 instance 0000013a260231a8 StateMachine</span><br><span class="line"></span><br><span class="line">&gt; dumpvc 00007ffcb86401f8 0000013a260231a8</span><br><span class="line">Name:        Program+&lt;&gt;c+&lt;&lt;&lt;Main&gt;$&gt;b__0_0&gt;d</span><br><span class="line">MethodTable: 00007ffcb86401f8</span><br><span class="line">EEClass:     00007ffcb860dd00</span><br><span class="line">Size:        56(0x38) bytes</span><br><span class="line">File:        C:\Users\User\Test1\bin\Release\net8.0\Test1.dll</span><br><span class="line">Fields:</span><br><span class="line">              MT    Field   Offset                 Type VT     Attr            Value Name</span><br><span class="line">00007ffcb7d31188  4000004       10         System.Int32  1 instance                0 &lt;&gt;1__state</span><br><span class="line">00007ffcb86402a8  4000005       18 ...tp.Abstractions]]  1 instance 0000013a260231c0 &lt;&gt;t__builder</span><br><span class="line">00007ffcb7ec02e0  4000006        0 ....Http.HttpContext  0 instance 0000013a23c66da0 ctx</span><br><span class="line">00007ffcb7daec08  4000007        8        System.String  0 instance 0000013a23c65e48 &lt;password&gt;5__2</span><br><span class="line">00007ffcb82611a0  4000008       20 ...vices.TaskAwaiter  1 instance 0000013a260231c8 &lt;&gt;u__1</span><br><span class="line"></span><br><span class="line">&gt; dumpobj 0000013a23c65e48</span><br><span class="line">Name:        System.String</span><br><span class="line">MethodTable: 00007ffcb7daec08</span><br><span class="line">EEClass:     00007ffcb7d8a5d8</span><br><span class="line">Tracked Type: false</span><br><span class="line">Size:        78(0x4e) bytes</span><br><span class="line">File:        C:\Program Files\dotnet\shared\Microsoft.NETCore.App\8.0.20\System.Private.CoreLib.dll</span><br><span class="line">---&gt; String:      ran&#x27;s_super_secret_password! &lt;---</span><br><span class="line">Fields:</span><br><span class="line">              MT    Field   Offset                 Type VT     Attr            Value Name</span><br><span class="line">00007ffcb7d31188  400033b        8         System.Int32  1 instance               28 _stringLength</span><br><span class="line">00007ffcb7d3b538  400033c        c          System.Char  1 instance               72 _firstChar</span><br><span class="line">00007ffcb7daec08  400033a       c8        System.String  0   static 0000013981b20008 Empty</span><br></pre></td></tr></table></figure>
+
+<p>From an attacker’s perspective, .NET processes are a high-value target for memory scraping precisely because of this. Any process handling authentication, Bearer tokens, API keys, or database credentials in async methods is leaving those values on the heap for the taking.</p>
+<p>On a compromised host with local access, collecting a dump from a running .NET web process takes one command and about ten seconds. No elevated privileges needed if you own the process. The analysis we just walked through, finding the state machine, reading the field, printing the string, is repeatable on any .NET async application with little to no prior knowledge of the codebase.</p>
+<p>For defenders, mitigation options are genuinely limited. You can’t control GC timin, what you can control is scope. Don’t hold sensitive values across await boundaries if you can avoid it and if you really must, clear them explicitly before awaiting since the GC may not zero the memory immediately. Treat any mechanism that can produce a heap dump, crash reporters, diagnostic tools, monitoring agents, as a potential credential exfiltration path .</p>
+<h3 id="Closure-Classes"><a href="#Closure-Classes" class="headerlink" title="Closure Classes"></a>Closure Classes</h3><p>When a lambda references a variable from the surrounding scope, the compiler runs into a problem which is that the lambda can be called anywhere potentially long after the method that declared the variable has returned. The stack frame is gone and the variable needs to survive.</p>
+<p>The solution is assigning it to the heap just like async. The compiler generates a class, moves the captured variable into a field on that class, and both the outer code and the lambda reference the same instance,  a closure class.</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> password = GetPassword();</span><br><span class="line">Func&lt;<span class="built_in">bool</span>&gt; validate = () =&gt; Authenticate(password);</span><br></pre></td></tr></table></figure>
+
+<p>After lowering, <code>password</code> is no longer a stack local, it is a field on a compiler generated class named something like <code>&lt;&gt;c__DisplayClass3_0</code>. The delegate <code>validate</code> holds a reference to that class instance, and as long as anything holds a reference to <code>validate</code> the class stays alive, and so does <code>password</code>.</p>
+<p>The lifetime is harder to reason about than the async case. With an async method you at least know the state machine lives for the duration of the request but in a closure, the lifetime depends entirely on whoever holds the delegate. Pass it to another component, register it as an event handler, cache it, hand it to a background task, and the captured <code>password</code> travels with it. Nulling your local reference does nothing. From a heap dump perspective this is identical to what we demonstrated with async. <code>dumpheap</code> finds the closure class, <code>dumpobj</code> prints its fields, and the captured value is sitting there in plaintext. </p>
+<h3 id="IL-Emission"><a href="#IL-Emission" class="headerlink" title="IL Emission"></a>IL Emission</h3><p>Once lowering is done Roslyn takes the fully transformed bound tree and emits CIL bytecode into an assembly, outputting a <code>.dll</code> or an <code>.exe</code>. Inside there are two things that matter, the CIL section containing the bytecode for every method, and the metadata section containing a complete description of every type, method signature, field, property, and attribute in the assembly.</p>
+<p>CIL is a stack-based instruction set, meaning there are no registers like in x86. Instead every operation pushes values onto an evaluation stack and pops them off. To add two numbers you push both onto the stack and call <code>add</code>, the runtime pops them, adds them, and pushes the result back.</p>
+<p>We’ll demonstrate this on a simple license validation program:</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title">LicenseValidator</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">bool</span> <span class="title">Validate</span>(<span class="params"><span class="built_in">string</span> key</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (key.Length != <span class="number">16</span>) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">int</span> seed = <span class="number">0xBEEF</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; <span class="number">8</span>; i++)</span><br><span class="line">        &#123;</span><br><span class="line">            seed ^= key[i] &lt;&lt; (i % <span class="number">4</span>);</span><br><span class="line">            seed = (seed &gt;&gt; <span class="number">1</span>) | (seed &lt;&lt; <span class="number">15</span>);</span><br><span class="line">            seed &amp;= <span class="number">0xFFFF</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">int</span> checksum = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">8</span>; i &lt; <span class="number">16</span>; i++)</span><br><span class="line">            checksum += key[i] ^ (seed &gt;&gt; (i % <span class="number">8</span>) &amp; <span class="number">0xFF</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> (seed ^ checksum) % <span class="number">0x100</span> == <span class="number">0xAC</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>16 character key, no separator. The first 8 characters seed a rolling XOR with bit rotation. The last 8 are validated against that seed as a checksum. The two halves are coupled, you can’t brute force them independently.</p>
+<p>Loading the compiled DLL into dnSpy allows us to view the IL Roslyn actually emitted<br><img src="/blog/images/dnspy2.png" alt="decompiled il"></p>
+<p>Walking through the first few instructions showcases how the stack machine works</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">IL_0000: ldarg.0                        // push &#x27;key&#x27; onto the stack</span><br><span class="line">IL_0001: callvirt  string::get_Length() // pop key, push key.Length</span><br><span class="line">IL_0006: ldc.i4.s  16                   // push the integer 16</span><br><span class="line">IL_0008: beq.s     IL_000C              // pop both, branch if equal</span><br><span class="line">IL_000A: ldc.i4.0                       // push 0 (false)</span><br><span class="line">IL_000B: ret                            // return false</span><br></pre></td></tr></table></figure>
+<p>That’s the <code>if (key.Length != 16) return false</code> check. <code>ldarg.0</code> loads the first argument, <code>callvirt</code> calls the <code>Length</code> property, <code>ldc.i4.s 16</code> pushes the constant 16, <code>beq.s</code> pops both and branches if they’re equal. If they’re not equal execution falls through to <code>ldc.i4.0</code> and <code>ret</code>, returning false.</p>
+<p>Further down is the seed initialization</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">IL_000C: ldc.i4    48879   // push 0xBEEF (48879 in decimal)</span><br><span class="line">IL_0011: stloc.0           // pop and store into local variable 0 (seed)</span><br></pre></td></tr></table></figure>
+
+<p><code>ldc.i4</code> loads a constant integer <code>stloc.0</code> stores it into the first local variable slot. The locals are declared at the top of the method.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">.locals init (</span><br><span class="line">    [0] int32 seed,</span><br><span class="line">    [1] int32 checksum,</span><br><span class="line">    [2] int32 i,</span><br><span class="line">    [3] int32 i</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>Every local variable, its type and its slot index, declared explicitly. And the XOR with bit rotation from inside the loop.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">IL_0024: shl    // shift left</span><br><span class="line">IL_0025: xor    // XOR with seed</span><br><span class="line">IL_0026: stloc.0</span><br><span class="line"></span><br><span class="line">IL_0029: shr    // shift right by 1</span><br><span class="line">IL_002D: shl    // shift left by 15</span><br><span class="line">IL_002E: or     // OR the two halves together (rotation)</span><br><span class="line">IL_002F: stloc.0</span><br></pre></td></tr></table></figure>
+
+<p>Each C# operator maps to exactly one or two IL opcodes. The stack makes the order of operations explicit in a way that source code abstracts away.</p>
+<h3 id="The-Metadata-Problem"><a href="#The-Metadata-Problem" class="headerlink" title="The Metadata Problem"></a>The Metadata Problem</h3><p>The IL is only half the story because the metadata section is what makes .NET assemblies fundamentally different from native binaries from a security perspective.</p>
+<p>Every type definition, method signature, field name, parameter name, and string constant is stored in a set of metadata tables that the CLR reads at runtime for type loading, reflection, and JIT compilation. This metadata has to be there since the runtime depends on it, stripping it means practically breaking the assembly.</p>
+<p>The consequence is that a release build of a .NET assembly contains everything a researcher needs. Not just the logic, but the names. <code>LicenseValidator</code>, <code>Validate</code>, <code>seed</code>, <code>checksum</code>, are all preserved. dnSpy reads the metadata and the CIL together to reconstruct source that’s nearly identical to what was written.</p>
+<p><img src="/blog/images/dnspy1.png" alt="source code"><br>This does an exceptionally better job at reconstructing source code than native binary decompilation tools like Ghidra or IDA, we can clearly see <code>0xBEEF</code> displayed as <code>48879</code>, <code>0xAC</code> as <code>172</code>, <code>0xFFFF</code> as <code>65535</code>. The rotation logic, the checksum loop, the final condition, and everything.<br>Similarly, dnSpy lets you modify the CIL of any method and save the patched assembly back to disk.</p>
+<p>Obfuscators like Dotfuscator and ConfuserEx exist to fight both of these threats. They rename symbols to meaningless characters, encode string constants, flatten control flow, and inject fake branches. They raise the bar but don’t eliminate the problem, the logic still has to execute correctly at runtime, which means it always has to be present in a form the CPU can run, and that’s always close enough to readable for a determined analyst. Patching doesn’t care about obfuscation because you don’t need to understand obfuscated code to replace a method body with <code>return true</code>.</p>
+<p>The key takeaway from this is secrets don’t belong in .NET assemblies, and security logic that can be patched out in five minutes isn’t security. If a threat model includes an attacker who has access to your binary, managed code gives them a significant advantage that native code doesn’t.</p>
+<h3 id="The-Runtime"><a href="#The-Runtime" class="headerlink" title="The Runtime"></a>The Runtime</h3><p>The assembly on disk is CIL, not native code as a result nothing in it can execute directly on the CPU. When the process starts, the CLR takes over.</p>
+<p>For an <code>.exe</code> the PE file contains a small native stub, a few bytes of real machine code whose only job is to load the CLR into the process. The CLR reads the assembly’s metadata, sets up the type system, locates the entry point method, and hands off execution. From that point on, methods run as CIL until something actually needs to execute them.</p>
+<p>The first time any method is called, the CLR hands it to RyuJIT, the just-in-time compiler. RyuJIT reads the CIL for that method, compiles it to native machine code for the current architecture, x86-64, ARM64, whatever the host is running, caches it, and executes it. Every subsequent call to the same method skips compilation entirely and runs the cached native code. This is why .NET has a cold start cost but steady-state performance close to native.</p>
+<p>RyuJIT isn’t just translating CIL to assembly one-to-one, it runs real optimizations such as inlining small methods, eliminating dead code, unrolling loops, allocating registers. The native code it produces is meaningfully different from a naive translation of the IL we just saw in dnSpy.</p>
+<h3 id="What-the-CLR-Enforces"><a href="#What-the-CLR-Enforces" class="headerlink" title="What the CLR Enforces"></a>What the CLR Enforces</h3><p>The CLR enforces a set of safety guarantees at runtime that fundamentally change the vulnerability landscape compared to native code.</p>
+<p>Every array access is bounds checked, before <code>array[i]</code> executes the runtime verifies that <code>i</code> is within the valid range. An out of bounds access throws an <code>IndexOutOfRangeException</code>, it doesn’t corrupt adjacent memory. Classic buffer overflows simply don’t exist in managed code because there’s no way to write past the end of an array and hit a return address.</p>
+<p>The type system is enforced at runtime as well. You can’t cast an object to an incompatible type and start reading its memory as if it were something else. An invalid cast throws <code>InvalidCastException</code>. References always point to valid objects of the declared type.</p>
+<p>RyuJIT specifically tries to eliminate bounds checks it can prove are unnecessary through static analysis. If it can determine that a loop index is always within range, the check gets removed and you pay no performance penalty. But the default is safe, the check is there unless the JIT can prove otherwise.</p>
+<p>This is why memory corruption vulnerabilities are rare in managed .NET code. The conditions that make C and C++ dangerous like pointer arithmetic, manual memory management, unchecked array access, simply don’t exist in the managed execution model.</p>
+<p>The <code>unsafe</code> keyword removes all of that though, code marked <code>unsafe</code> can use raw pointers, do pointer arithmetic, and index memory without bounds checks. It opts out of the CLR’s safety guarantees entirely and behaves like classic C. Buffer overflows, use-after-free, arbitrary memory reads, all possible inside an <code>unsafe</code> block. Most .NET code never uses it, but it exists, and third party libraries sometimes do.</p>
+<h3 id="NativeAOT"><a href="#NativeAOT" class="headerlink" title="NativeAOT"></a>NativeAOT</h3><p>NativeAOT is a compilation mode that changes the entire picture. Instead of shipping CIL that gets JIT compiled at runtime, NativeAOT compiles everything ahead of time into a self contained native binary.</p>
+<p>From a deployment perspective it means smaller binaries, faster startup, no runtime dependency. But from a security perspective the attack surface flips entirely.</p>
+<p>Everything we demonstrated in the IL emission section stops working against a NativeAOT binary. Load it into dnSpy and you get raw disassembly, not decompiled C#. The metadata that made <code>LicenseValidator</code>, <code>Validate</code>, <code>seed</code>, and <code>checksum</code> visible is gone. Symbol names are stripped in release builds. You’re back to the native reversing problem, which requires disassembly, patience, and reconstruction of intent from raw assembly instructions.</p>
+<p>NativeAOT also changes what features are available, arbitrary reflection, dynamic code generation via <code>Emit</code>, and certain serialization patterns that depend on runtime metadata either don’t work or require explicit annotations to preserve the information they need. Applications have to be written with deliberate AOT compatibility in mind.</p>
+<p>For applications where binary confidentiality or IP protection matters, NativeAOT shifts the threat model closer to what native compiled language ecosystems deal with. For applications where the CLR’s safety guarantees, rich reflection, and deployment flexibility matter more, the standard JIT path makes more sense.</p>
+<h3 id="Where-Does-This-Leave-Us"><a href="#Where-Does-This-Leave-Us" class="headerlink" title="Where Does This Leave Us?"></a>Where Does This Leave Us?</h3><p>Most developers interact with the compiler as a black box, code goes in and a binary comes out,  everything in between is someone or something else’s problem.</p>
+<p>The pipeline isn’t just a technical curiosity, it’s the reason your tooling works, the reason certain bugs exist, and the reason some attack classes are possible against .NET that aren’t possible against native code, and vice versa. Roslyn’s public API exists because the compiler exposes its internals, and that’s the same reason IDE features, refactoring tools, and security analyzers can all work off the same semantic model.</p>
+<p>Heap exposure in async methods isn’t a bug, it’s a necessary consequence of how the runtime suspends and resumes execution. The decompilability of .NET assemblies isn’t an oversight, it’s the cost of a metadata-driven runtime that enables reflection, dynamic loading, and cross-language interop.</p>
+<p>Understanding the pipeline changes how you read a vulnerability, how you evaluate a security tool, and how you reason about the guarantees your code actually has versus the ones you assumed it had. Every phase makes decisions that have consequences, and most of those consequences were intentional tradeoffs made by people with different priorities than security. Knowing what those tradeoffs are is what separates understanding a platform from just using it.</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#The-In-Between"><span class="toc-number">1.</span> <span class="toc-text">The In-Between</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#What%E2%80%99s-Roslyn"><span class="toc-number">2.</span> <span class="toc-text">What’s Roslyn?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Breaking-Down-the-Source"><span class="toc-number">3.</span> <span class="toc-text">Breaking Down the Source</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Translating-the-Stream"><span class="toc-number">4.</span> <span class="toc-text">Translating the Stream</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Still-No-Meaning"><span class="toc-number">5.</span> <span class="toc-text">Still No Meaning</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Immutability-and-structural-sharing"><span class="toc-number">6.</span> <span class="toc-text">Immutability and structural sharing</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#The-Red-Green-Tree"><span class="toc-number">7.</span> <span class="toc-text">The Red-Green Tree</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Binding"><span class="toc-number">8.</span> <span class="toc-text">Binding</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Where-Security-Tools-Live"><span class="toc-number">9.</span> <span class="toc-text">Where Security Tools Live</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lowering"><span class="toc-number">10.</span> <span class="toc-text">Lowering</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Async-State-Machines"><span class="toc-number">11.</span> <span class="toc-text">Async State Machines</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Closure-Classes"><span class="toc-number">12.</span> <span class="toc-text">Closure Classes</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IL-Emission"><span class="toc-number">13.</span> <span class="toc-text">IL Emission</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#The-Metadata-Problem"><span class="toc-number">14.</span> <span class="toc-text">The Metadata Problem</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#The-Runtime"><span class="toc-number">15.</span> <span class="toc-text">The Runtime</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#What-the-CLR-Enforces"><span class="toc-number">16.</span> <span class="toc-text">What the CLR Enforces</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NativeAOT"><span class="toc-number">17.</span> <span class="toc-text">NativeAOT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Where-Does-This-Leave-Us"><span class="toc-number">18.</span> <span class="toc-text">Where Does This Leave Us?</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ran-var.github.io/blog/dotnet/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ran-var.github.io/blog/dotnet/&text=C# From Text to Machine Code"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ran-var.github.io/blog/dotnet/&title=C# From Text to Machine Code"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ran-var.github.io/blog/dotnet/&is_video=false&description=C# From Text to Machine Code"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=C# From Text to Machine Code&body=Check out this article: https://ran-var.github.io/blog/dotnet/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ran-var.github.io/blog/dotnet/&title=C# From Text to Machine Code"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ran-var.github.io/blog/dotnet/&title=C# From Text to Machine Code"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ran-var.github.io/blog/dotnet/&title=C# From Text to Machine Code"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ran-var.github.io/blog/dotnet/&title=C# From Text to Machine Code"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ran-var.github.io/blog/dotnet/&name=C# From Text to Machine Code&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ran-var.github.io/blog/dotnet/&t=C# From Text to Machine Code"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2025-2026
+    Ran Varshaver
+  </div>
+  <div class="footer-right">
+  </div>
+</footer>
+
+    </div>
+    
+
+ 
+  <link
+    rel="preload"
+    href="/blog/lib/font-awesome/css/all.min.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript
+    ><link
+      rel="stylesheet"
+      href="/blog/lib/font-awesome/css/all.min.css"
+  /></noscript>
+
+
+    
+  
+<script src="/blog/lib/jquery/jquery.min.js"></script>
+
+
+
+
+
+
+  
+    
+<script src="/blog/lib/clipboard/clipboard.min.js"></script>
+
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/blog/js/main.js"></script>
+
+
+
+</body>
+</html>
