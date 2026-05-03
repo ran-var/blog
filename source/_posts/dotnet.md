@@ -166,9 +166,9 @@ We'll dig through this with `dotnet-dump` which ships with the .NET SDK. Run the
 
 ```powershell
 dotnet-dump ps
-11080 Test1 C:\Users\Ran\Test1\bin\Release\net8.0\Test1.exe "C:\Users\Ran\Test1\bin\Release\net8.0\Test1.exe"
+11080 Test1 C:\Users\User\Test1\bin\Release\net8.0\Test1.exe "C:\Users\User\Test1\bin\Release\net8.0\Test1.exe"
 dotnet-dump collect -p 11080
-dotnet-dump analyze C:\Users\Ran\Test1\dump_20260501_001307.dmp
+dotnet-dump analyze C:\Users\User\Test1\dump_20260501_001307.dmp
 ```
 
 Inside the analyze session, find the state machine by walking down from the ASP.NET request pipeline:
