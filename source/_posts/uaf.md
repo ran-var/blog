@@ -252,7 +252,7 @@ Usable size: 72 (0x48)
 Previous chunk size: 0 (0x0)
 PREV_INUSE | IS_MMAPPED | NON_MAIN_ARENA
 ```
-Due to the way C++ allocates memory the chunk size of the original object must be matched if we want to ensure that the memory is being allocated in the same region which as freed, after playing around and attempting a few values it was found that a length of 46 results in the same allocated chunk size as the original objects.
+Due to the way glibc's allocator works freed chunks are sorted by size and reused for same sized allocations, so our payload must produce a chunk of the same size as the original objects. The original objects were allocated with `operator new(0x30)`, which with the 16-byte chunk header rounds up to 0x40. Requesting 46 bytes gives us 46 + 16 = 62, which rounds up to the same 0x40, ensuring we reclaim the exact freed chunk.
 
 Take a close look at the resulting addresses, it is the exact same region that was allocated to `m` and `w` at the beginning which means that with a proper payload we are able to override the vtable and redirect execution flow.
 ```bash
@@ -325,3 +325,5 @@ your data is allocated
 $ cat flag
 [flag]
 ```
+
+Overall it was an enjoyable challenge that is simple yet intricate enough to cause my to scratch my head at times, and most importantly strengthening my familiarity with common C++ vulnerabilities.
