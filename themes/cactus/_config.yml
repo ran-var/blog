@@ -9,9 +9,12 @@ repositories:
     description: Menu-based malware generator with customizable attributes and features
 
 publications:
-  - title: "Digital Whisper: Issue 182"
+  - title: "Digital Whisper Issue 182: $5 UEFI BitLocker Attacks"
     link: https://digitalwhisper.co.il/files/Zines/0xB6/DW182-2-UEFI-Hacking.pdf
     date: 31-01-2026
+  - title: "Digital Whisper: Issue 189: Illusion of the Vault - Password Manager Analysis"
+    link: https://digitalwhisper.co.il/files/Zines/0xB6/DW183-1-Reverse-Engineering.pdf
+    date: 31-08-2026
 
 # Set the page direction to RTL or LTR. default is LTR. (if you set it 'rtl', the 'vazir' font will be loaded.)
 direction: ltr
