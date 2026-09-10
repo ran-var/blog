@@ -14,7 +14,7 @@ publications:
     date: 31-01-2026
   - title: "Digital Whisper Issue 189: Illusion of the Vault - Password Manager Security Analysis"
     link: https://digitalwhisper.co.il/files/Zines/0xBD/DW189-1-BreakingVaults.pdf
-    date: 31-08-2026
+    date: 01-09-2026
 
 # Set the page direction to RTL or LTR. default is LTR. (if you set it 'rtl', the 'vazir' font will be loaded.)
 direction: ltr
