@@ -193,7 +193,14 @@
   <span class="h1">Publications</span>
 
   <ul class="post-list">
-    <% theme.publications.forEach(function(pub){ %>
+    <%
+      // Sort most recent first; dates are DD-MM-YYYY.
+      var pubs = theme.publications.slice().sort(function(a, b){
+        function ts(d){ var p = String(d).split('-'); return new Date(p[2], p[1] - 1, p[0]).getTime(); }
+        return ts(b.date) - ts(a.date);
+      });
+    %>
+    <% pubs.forEach(function(pub){ %>
       <li class="post-item">
         <div class="post-title-wrapper">
           <a href="<%- pub.link %>" target="_blank" rel="noopener"><%= pub.title %></a>
